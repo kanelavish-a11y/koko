@@ -1,137 +1,26 @@
-table 'Time Comparison'
-	lineageTag: f576d66a-9d80-4a28-9e38-2aaed6f929be
+table 'Period Selector'
+	lineageTag: 22222222-3333-4444-5555-666666666666
 
 	calculationGroup
+		precedence: 10
 
-		calculationItem 'Current Period' = SELECTEDMEASURE()
+		calculationItem 'Selected Period' = SELECTEDMEASURE()
 
-		calculationItem 'Prior Quarter' =
+		calculationItem Quarterly =
 			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
 			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR CurrentStartIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentStartDate)
-			VAR PriorEndDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 1)
-			VAR PriorStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentStartIndex - 1)
+			VAR QuarterStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 1)
 			RETURN
 				IF(
-					CurrentEndIndex > 1 && CurrentStartIndex > 1,
+					CurrentEndIndex > 1,
 					CALCULATE(
 						SELECTEDMEASURE(),
-						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
+						'SnapshotDate_Start'[Snapshot Date] = QuarterStartDate,
+						'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
 					)
 				)
 
-		calculationItem 'Prior Year' =
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR CurrentStartIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentStartDate)
-			VAR PriorYearEndDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 4)
-			VAR PriorYearStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentStartIndex - 4)
-			RETURN
-				IF(
-					CurrentEndIndex > 4 && CurrentStartIndex > 4,
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_End'[Snapshot Date] = PriorYearEndDate,
-						'SnapshotDate_Start'[Snapshot Date] = PriorYearStartDate
-					)
-				)
-
-		calculationItem 'YoY Change' =
-			VAR CurrentValue = SELECTEDMEASURE()
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR CurrentStartIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentStartDate)
-			VAR PriorYearEndDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 4)
-			VAR PriorYearStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentStartIndex - 4)
-			VAR PriorYearValue =
-				IF(
-					CurrentEndIndex > 4 && CurrentStartIndex > 4,
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_End'[Snapshot Date] = PriorYearEndDate,
-						'SnapshotDate_Start'[Snapshot Date] = PriorYearStartDate
-					)
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(CurrentValue) && NOT ISBLANK(PriorYearValue),
-					CurrentValue - PriorYearValue
-				)
-
-		calculationItem 'YoY % Change' =
-			VAR CurrentValue = SELECTEDMEASURE()
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR CurrentStartIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentStartDate)
-			VAR PriorYearEndDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 4)
-			VAR PriorYearStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentStartIndex - 4)
-			VAR PriorYearValue =
-				IF(
-					CurrentEndIndex > 4 && CurrentStartIndex > 4,
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_End'[Snapshot Date] = PriorYearEndDate,
-						'SnapshotDate_Start'[Snapshot Date] = PriorYearStartDate
-					)
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(PriorYearValue) && PriorYearValue <> 0,
-					DIVIDE(CurrentValue - PriorYearValue, PriorYearValue)
-				)
-
-		calculationItem 'QoQ Change' =
-			VAR CurrentValue = SELECTEDMEASURE()
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR CurrentStartIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentStartDate)
-			VAR PriorEndDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 1)
-			VAR PriorStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentStartIndex - 1)
-			VAR PriorQuarterValue =
-				IF(
-					CurrentEndIndex > 1 && CurrentStartIndex > 1,
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
-					)
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(CurrentValue) && NOT ISBLANK(PriorQuarterValue),
-					CurrentValue - PriorQuarterValue
-				)
-
-		calculationItem 'QoQ % Change' =
-			VAR CurrentValue = SELECTEDMEASURE()
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR CurrentStartIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentStartDate)
-			VAR PriorEndDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 1)
-			VAR PriorStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentStartIndex - 1)
-			VAR PriorQuarterValue =
-				IF(
-					CurrentEndIndex > 1 && CurrentStartIndex > 1,
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
-					)
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(PriorQuarterValue) && PriorQuarterValue <> 0,
-					DIVIDE(CurrentValue - PriorQuarterValue, PriorQuarterValue)
-				)
-
-		calculationItem FYTD =
+		calculationItem 'Annual (FY)' =
 			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
 			VAR CurrentFY = IF(MONTH(CurrentEndDate) >= 10, YEAR(CurrentEndDate) + 1, YEAR(CurrentEndDate))
 			VAR FYStartDate =
@@ -153,34 +42,37 @@ table 'Time Comparison'
 					)
 				)
 
-		calculationItem 'Prior FYTD' =
+		calculationItem 'Rolling 4 Quarters' =
 			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentFY = IF(MONTH(CurrentEndDate) >= 10, YEAR(CurrentEndDate) + 1, YEAR(CurrentEndDate))
-			VAR PriorFY = CurrentFY - 1
 			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR PriorFYEndDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 4)
-			VAR PriorFYStartDate =
-				MINX(
-					FILTER(
-						ALL('SnapshotIndex'),
-						VAR SnapFY = IF(MONTH('SnapshotIndex'[Snapshot Date]) >= 10, YEAR('SnapshotIndex'[Snapshot Date]) + 1, YEAR('SnapshotIndex'[Snapshot Date]))
-						RETURN SnapFY = PriorFY
-					),
-					'SnapshotIndex'[Snapshot Date]
-				)
+			VAR RollingStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 4)
 			RETURN
 				IF(
-					NOT ISBLANK(PriorFYStartDate) && NOT ISBLANK(PriorFYEndDate),
+					CurrentEndIndex > 4,
 					CALCULATE(
 						SELECTEDMEASURE(),
-						'SnapshotDate_Start'[Snapshot Date] = PriorFYStartDate,
-						'SnapshotDate_End'[Snapshot Date] = PriorFYEndDate
+						'SnapshotDate_Start'[Snapshot Date] = RollingStartDate,
+						'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
 					)
 				)
 
-	column 'Time Comparison'
+		calculationItem 'Rolling 2 Quarters' =
+			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
+			VAR RollingStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 2)
+			RETURN
+				IF(
+					CurrentEndIndex > 2,
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_Start'[Snapshot Date] = RollingStartDate,
+						'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
+					)
+				)
+
+	column 'Period Selector'
 		dataType: string
-		lineageTag: ae465c7b-154e-4558-9f19-1597d37d2d05
+		lineageTag: aaaaaaaa-2222-3333-4444-555555555555
 		summarizeBy: none
 		sourceColumn: Name
 		sortByColumn: Ordinal
@@ -189,6 +81,6 @@ table 'Time Comparison'
 		dataType: int64
 		isHidden
 		formatString: 0
-		lineageTag: e03989d9-e335-4b13-b250-45197ce43d88
+		lineageTag: bbbbbbbb-2222-3333-4444-555555555555
 		summarizeBy: none
 		sourceColumn: Ordinal
