@@ -1,149 +1,150 @@
 createOrReplace
 	table 'Time Comparison'
 		lineageTag: f576d66a-9d80-4a28-9e38-2aaed6f929be
+
 		calculationGroup
+			precedence: 0
 
-		calculationItem "Current Period" = SELECTEDMEASURE()
-			ordinal: 0
+			calculationItem "Current Period" = SELECTEDMEASURE()
+				ordinal: 0
 
-		calculationItem "Prior Quarter" = 
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR PriorEndDate = EDATE(CurrentEndDate, -3)
-			VAR PriorStartDate = EDATE(CurrentStartDate, -3)
-			RETURN
-				CALCULATE(
-					SELECTEDMEASURE(),
-					'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-					'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
-				)
-			ordinal: 1
+			calculationItem "Prior Quarter" = 
+				VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+				VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+				VAR PriorEndDate = EDATE(CurrentEndDate, -3)
+				VAR PriorStartDate = EDATE(CurrentStartDate, -3)
+				RETURN
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
+						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
+					)
+				ordinal: 1
 
-		calculationItem "Prior Year" = 
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR PriorEndDate = EDATE(CurrentEndDate, -12)
-			VAR PriorStartDate = EDATE(CurrentStartDate, -12)
-			RETURN
-				CALCULATE(
-					SELECTEDMEASURE(),
-					'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-					'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
-				)
-			ordinal: 2
+			calculationItem "Prior Year" = 
+				VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+				VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+				VAR PriorEndDate = EDATE(CurrentEndDate, -12)
+				VAR PriorStartDate = EDATE(CurrentStartDate, -12)
+				RETURN
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
+						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
+					)
+				ordinal: 2
 
-		calculationItem "YoY Change" = 
-			VAR CurrentValue = SELECTEDMEASURE()
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR PriorEndDate = EDATE(CurrentEndDate, -12)
-			VAR PriorStartDate = EDATE(CurrentStartDate, -12)
-			VAR PriorYearValue = 
-				CALCULATE(
-					SELECTEDMEASURE(),
-					'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-					'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(CurrentValue) && NOT ISBLANK(PriorYearValue),
-					CurrentValue - PriorYearValue
-				)
-			ordinal: 3
+			calculationItem "YoY Change" = 
+				VAR CurrentValue = SELECTEDMEASURE()
+				VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+				VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+				VAR PriorEndDate = EDATE(CurrentEndDate, -12)
+				VAR PriorStartDate = EDATE(CurrentStartDate, -12)
+				VAR PriorYearValue = 
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
+						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
+					)
+				RETURN
+					IF(
+						NOT ISBLANK(CurrentValue) && NOT ISBLANK(PriorYearValue),
+						CurrentValue - PriorYearValue
+					)
+				ordinal: 3
 
-		calculationItem "YoY % Change" = 
-			VAR CurrentValue = SELECTEDMEASURE()
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR PriorEndDate = EDATE(CurrentEndDate, -12)
-			VAR PriorStartDate = EDATE(CurrentStartDate, -12)
-			VAR PriorYearValue = 
-				CALCULATE(
-					SELECTEDMEASURE(),
-					'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-					'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(PriorYearValue) && PriorYearValue <> 0,
-					DIVIDE(CurrentValue - PriorYearValue, PriorYearValue)
-				)
-			formatString: "+0.0%;-0.0%;0.0%"
-			ordinal: 4
+			calculationItem "YoY % Change" = 
+				VAR CurrentValue = SELECTEDMEASURE()
+				VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+				VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+				VAR PriorEndDate = EDATE(CurrentEndDate, -12)
+				VAR PriorStartDate = EDATE(CurrentStartDate, -12)
+				VAR PriorYearValue = 
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
+						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
+					)
+				RETURN
+					IF(
+						NOT ISBLANK(PriorYearValue) && PriorYearValue <> 0,
+						DIVIDE(CurrentValue - PriorYearValue, PriorYearValue)
+					)
+				formatString: "+0.0%;-0.0%;0.0%"
+				ordinal: 4
 
-		calculationItem "QoQ Change" = 
-			VAR CurrentValue = SELECTEDMEASURE()
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR PriorEndDate = EDATE(CurrentEndDate, -3)
-			VAR PriorStartDate = EDATE(CurrentStartDate, -3)
-			VAR PriorQuarterValue = 
-				CALCULATE(
-					SELECTEDMEASURE(),
-					'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-					'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(CurrentValue) && NOT ISBLANK(PriorQuarterValue),
-					CurrentValue - PriorQuarterValue
-				)
-			ordinal: 5
+			calculationItem "QoQ Change" = 
+				VAR CurrentValue = SELECTEDMEASURE()
+				VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+				VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+				VAR PriorEndDate = EDATE(CurrentEndDate, -3)
+				VAR PriorStartDate = EDATE(CurrentStartDate, -3)
+				VAR PriorQuarterValue = 
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
+						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
+					)
+				RETURN
+					IF(
+						NOT ISBLANK(CurrentValue) && NOT ISBLANK(PriorQuarterValue),
+						CurrentValue - PriorQuarterValue
+					)
+				ordinal: 5
 
-		calculationItem "QoQ % Change" = 
-			VAR CurrentValue = SELECTEDMEASURE()
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
-			VAR PriorEndDate = EDATE(CurrentEndDate, -3)
-			VAR PriorStartDate = EDATE(CurrentStartDate, -3)
-			VAR PriorQuarterValue = 
-				CALCULATE(
-					SELECTEDMEASURE(),
-					'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
-					'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(PriorQuarterValue) && PriorQuarterValue <> 0,
-					DIVIDE(CurrentValue - PriorQuarterValue, PriorQuarterValue)
-				)
-			formatString: "+0.0%;-0.0%;0.0%"
-			ordinal: 6
+			calculationItem "QoQ % Change" = 
+				VAR CurrentValue = SELECTEDMEASURE()
+				VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+				VAR CurrentStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+				VAR PriorEndDate = EDATE(CurrentEndDate, -3)
+				VAR PriorStartDate = EDATE(CurrentStartDate, -3)
+				VAR PriorQuarterValue = 
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorEndDate,
+						'SnapshotDate_Start'[Snapshot Date] = PriorStartDate
+					)
+				RETURN
+					IF(
+						NOT ISBLANK(PriorQuarterValue) && PriorQuarterValue <> 0,
+						DIVIDE(CurrentValue - PriorQuarterValue, PriorQuarterValue)
+					)
+				formatString: "+0.0%;-0.0%;0.0%"
+				ordinal: 6
 
-		calculationItem "FYTD" = 
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR FiscalYearStart = 
-				IF(
-					MONTH(CurrentEndDate) >= 10,
-					DATE(YEAR(CurrentEndDate), 10, 1),
-					DATE(YEAR(CurrentEndDate) - 1, 10, 1)
-				)
-			VAR FYTDStartDate = FiscalYearStart
-			RETURN
-				CALCULATE(
-					SELECTEDMEASURE(),
-					'SnapshotDate_Start'[Snapshot Date] = FYTDStartDate,
-					'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
-				)
-			ordinal: 7
+			calculationItem "FYTD" = 
+				VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+				VAR FiscalYearStart = 
+					IF(
+						MONTH(CurrentEndDate) >= 10,
+						DATE(YEAR(CurrentEndDate), 10, 1),
+						DATE(YEAR(CurrentEndDate) - 1, 10, 1)
+					)
+				RETURN
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_Start'[Snapshot Date] = FiscalYearStart,
+						'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
+					)
+				ordinal: 7
 
-		calculationItem "Prior FYTD" = 
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR FiscalYearStart = 
-				IF(
-					MONTH(CurrentEndDate) >= 10,
-					DATE(YEAR(CurrentEndDate), 10, 1),
-					DATE(YEAR(CurrentEndDate) - 1, 10, 1)
-				)
-			VAR PriorFYStart = DATE(YEAR(FiscalYearStart) - 1, 10, 1)
-			VAR PriorFYEndDate = EDATE(CurrentEndDate, -12)
-			RETURN
-				CALCULATE(
-					SELECTEDMEASURE(),
-					'SnapshotDate_Start'[Snapshot Date] = PriorFYStart,
-					'SnapshotDate_End'[Snapshot Date] = PriorFYEndDate
-				)
-			ordinal: 8
+			calculationItem "Prior FYTD" = 
+				VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+				VAR FiscalYearStart = 
+					IF(
+						MONTH(CurrentEndDate) >= 10,
+						DATE(YEAR(CurrentEndDate), 10, 1),
+						DATE(YEAR(CurrentEndDate) - 1, 10, 1)
+					)
+				VAR PriorFYStart = DATE(YEAR(FiscalYearStart) - 1, 10, 1)
+				VAR PriorFYEndDate = EDATE(CurrentEndDate, -12)
+				RETURN
+					CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_Start'[Snapshot Date] = PriorFYStart,
+						'SnapshotDate_End'[Snapshot Date] = PriorFYEndDate
+					)
+				ordinal: 8
 
 		column 'Time Comparison'
 			dataType: string
