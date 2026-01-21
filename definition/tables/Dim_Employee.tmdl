@@ -1,0 +1,117 @@
+/// Employee dimension with demographic attributes for slicing headcount and attrition metrics.
+table Dim_Employee
+	lineageTag: 317d99ea-f8dd-4e17-9816-2867b19cb6ae
+
+	column 'Tenure Bucket'
+		lineageTag: a50ba2e7-cf3f-4feb-8a06-9500d9e2e5a7
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Tenure Bucket]
+		sortByColumn: 'Tenure Bucket Sort Order'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tenure Bucket Sort Order'
+		formatString: 0
+		lineageTag: 643bd78f-8b20-48f6-9743-c45203b8d152
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Tenure Bucket Sort Order]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Age Group'
+		lineageTag: 941d22db-715a-45c9-b341-06bfc0ddf16a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Age Group]
+
+		annotation SummarizationSetBy = Automatic
+
+	column CompositeKey
+		lineageTag: de925962-2d1f-49c9-ba38-c7d4d75d3742
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [CompositeKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sex
+		lineageTag: 2432e43a-ac62-466e-b958-a5c0d0363446
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Sex]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Occ Series Current'
+		lineageTag: 6735daed-4ea4-4e1b-8449-b6f5efc0041d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Occ Series Current]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Title
+		lineageTag: bbd16557-5bcb-49a1-bae7-30f8aafe355e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Title]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Employee = calculated
+		mode: import
+		source = ```
+				
+				VAR AllEmployeeKeys =
+				    SUMMARIZE(
+				        'Fact_EmployeeSnapshot',
+				        'Fact_EmployeeSnapshot'[CompositeKey]
+				    )
+				VAR EmployeeAttributes =
+				    ADDCOLUMNS(
+				        AllEmployeeKeys,
+				        "Tenure Bucket",
+				        CALCULATE(
+				            SELECTEDVALUE('Fact_EmployeeSnapshot'[Tenure Bucket], "Unknown")
+				        ),
+				        "Tenure Bucket Sort Order",
+				        CALCULATE(
+				            SELECTEDVALUE('Fact_EmployeeSnapshot'[Tenure Bucket Sort Order], 99)
+				        ),
+				        "Age Group",
+				        CALCULATE(
+				            SELECTEDVALUE('Fact_EmployeeSnapshot'[Age Group], "Unknown")
+				        ),
+				        "Sex",
+				        CALCULATE(
+				            SELECTEDVALUE('Fact_EmployeeSnapshot'[Sex], "U")
+				        ),
+				        // *** NEW COLUMNS ADDED HERE ***
+				        "Occ Series Current",
+				        CALCULATE(
+				            SELECTEDVALUE('Fact_EmployeeSnapshot'[Occ Series Current], "Unknown")
+				        ),
+				        "Title",
+				        CALCULATE(
+				            SELECTEDVALUE('Fact_EmployeeSnapshot'[Title], "Unknown")
+				        )
+				    )
+				RETURN
+				    // The final step is to select and rename the columns for a clean output
+				    SELECTCOLUMNS(
+				        EmployeeAttributes,
+				        "CompositeKey", [CompositeKey],
+				        "Tenure Bucket", [Tenure Bucket],
+				        "Tenure Bucket Sort Order", [Tenure Bucket Sort Order],
+				        "Age Group", [Age Group],
+				        "Sex", [Sex],
+				        "Occ Series Current", [Occ Series Current],
+				        "Title", [Title]
+				    )
+				
+				```
+
+	annotation PBI_Id = a642685569f842e289898170aa1c30e7
+

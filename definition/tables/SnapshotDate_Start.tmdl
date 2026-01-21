@@ -1,0 +1,23 @@
+/// Date slicer for selecting the start of an analysis period. Derived from Fact_EmployeeSnapshot dates.
+table SnapshotDate_Start
+	lineageTag: 4a44d1ef-49bb-4fd6-9c47-8078c24c3001
+
+	column 'Snapshot Date'
+		formatString: Short Date
+		lineageTag: af62a7c5-7738-4c52-a799-ac267391ca31
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Fact_EmployeeSnapshot[Snapshot Date]
+		columnOrigin: Fact_EmployeeSnapshot.'Snapshot Date'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SnapshotDate_Start = calculated
+		mode: import
+		source = ```
+				DISTINCT('Fact_EmployeeSnapshot'[Snapshot Date])
+				
+				```
+
+	annotation PBI_Id = 6c16cb00de024b2dbc026cbf4a84d32b
+

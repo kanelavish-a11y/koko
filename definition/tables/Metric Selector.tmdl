@@ -1,0 +1,16 @@
+/// Field parameter for dynamically switching between key metrics
+table 'Metric Selector'
+
+	partition 'Metric Selector' = calculated
+		mode: import
+		source =
+				{
+				    ("Attrition Rate", NAMEOF('_Measures'[Attrition Rate]), 0),
+				    ("Total Losses", NAMEOF('_Measures'[Total Losses]), 1),
+				    ("Total Gains", NAMEOF('_Measures'[Total Gains]), 2),
+				    ("Net Change", NAMEOF('_Measures'[Net Change]), 3),
+				    ("Retention Rate", NAMEOF('_Measures'[Retention Rate]), 4),
+				    ("Promotion Rate", NAMEOF('_Measures'[Promotion Rate]), 5),
+				    ("Voluntary Attrition %", NAMEOF('_Measures'[Voluntary Attrition %]), 6)
+				}
+

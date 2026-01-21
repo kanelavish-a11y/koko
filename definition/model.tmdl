@@ -1,0 +1,28 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+ref table Dim_Organization
+ref table Fact_EmployeeSnapshot
+ref table Fact_PersonnelActions
+ref table _Measures
+ref table Dim_Series
+ref table SnapshotDate_Start
+ref table SnapshotDate_End
+ref table Dim_Employee
+ref table 'Time Comparison'
+ref table 'Dimension Selector'
+ref table 'Metric Selector'
+ref table 'Period Selector'
+ref table Agg_OrgSeries_Summary
+ref table Targets
+
+ref perspective 'Executive View'
+ref perspective 'HR Analyst View'
+ref perspective 'Manager View'
+

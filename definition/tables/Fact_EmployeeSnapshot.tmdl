@@ -1,0 +1,1033 @@
+/// Point-in-time employee roster snapshots for headcount and demographic trend analysis. Each row represents an employee at a specific snapshot date.
+table Fact_EmployeeSnapshot
+	lineageTag: 1e6d7718-c038-4c73-9a44-c03ed5ec66c1
+
+	column SSAN_EMPL_CON_NR
+		dataType: string
+		isHidden
+		displayFolder: Keys
+		lineageTag: 3f906007-70e0-4a4f-8cd8-11229b435512
+		summarizeBy: none
+		sourceColumn: SSAN_EMPL_CON_NR
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Department of Defense Identification number - unique employee identifier
+	column 'DoD ID (EDIPI)'
+		dataType: string
+		displayFolder: Personal Info
+		lineageTag: c4360df1-35ff-40f2-b2ee-7c5f418be5f7
+		summarizeBy: none
+		sourceColumn: DoD ID (EDIPI)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Employee Num'
+		dataType: string
+		displayFolder: Personal Info
+		lineageTag: 6d1ffc0f-580b-4cfc-a80e-d71c9eee6341
+		summarizeBy: none
+		sourceColumn: Employee Num
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Position ID'
+		dataType: string
+		displayFolder: Position
+		lineageTag: 4144a29a-7c34-40c6-9c5c-dc3b981cb781
+		summarizeBy: none
+		sourceColumn: Position ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CPCN
+		dataType: string
+		displayFolder: Position
+		lineageTag: 61a0e5c5-4d46-4619-8af0-118f29b381d1
+		summarizeBy: none
+		sourceColumn: CPCN
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dt of Birth'
+		dataType: dateTime
+		formatString: Long Date
+		displayFolder: Personal Info
+		lineageTag: aece05f7-214b-4318-992d-55d77c624cae
+		summarizeBy: none
+		sourceColumn: Dt of Birth
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Sex
+		dataType: string
+		displayFolder: Personal Info
+		lineageTag: e5208cb9-16c8-48b7-8e97-37f97bb9d081
+		summarizeBy: none
+		sourceColumn: Sex
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Step within grade determining specific pay rate (1-10 for GS)
+	column 'Step or Rate'
+		dataType: string
+		displayFolder: Pay & Compensation
+		lineageTag: fb904169-38e2-407a-be50-a9379ecb3905
+		summarizeBy: none
+		sourceColumn: Step or Rate
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'SCD Leave'
+		dataType: string
+		displayFolder: Dates
+		lineageTag: 7a8331d5-81f4-4a07-8419-41f0e00a3f8e
+		summarizeBy: none
+		sourceColumn: SCD Leave
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'SCD Civilian'
+		dataType: string
+		displayFolder: Dates
+		lineageTag: 30b04de4-1309-4ec1-ad57-1526ca6e27a9
+		summarizeBy: none
+		sourceColumn: SCD Civilian
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'SCD RIF'
+		dataType: string
+		displayFolder: Dates
+		lineageTag: 42caffe6-b44f-428b-9561-29b554c43ddc
+		summarizeBy: none
+		sourceColumn: SCD RIF
+
+		annotation SummarizationSetBy = Automatic
+
+	column SALARY_HR
+		dataType: decimal
+		displayFolder: Pay & Compensation
+		lineageTag: 9400927f-97d1-4a6e-9e10-395a888e8eb1
+		summarizeBy: none
+		sourceColumn: SALARY_HR
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Pay plan code (GS, WG, etc.) defining the employee's compensation schedule
+	column 'Pay Plan Current'
+		dataType: string
+		displayFolder: Pay & Compensation
+		lineageTag: 7b004e39-e707-46a0-bdcb-588412c002dd
+		summarizeBy: none
+		sourceColumn: Pay Plan Current
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Current occupational series code (4-digit OPM classification)
+	column 'Occ Series Current'
+		dataType: string
+		isHidden
+		displayFolder: Keys
+		lineageTag: c0e7011c-cc27-4108-9d24-8ebf73943074
+		summarizeBy: none
+		sourceColumn: Occ Series Current
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Employee's full legal name (Last, First Middle)
+	column NAME-FULL
+		dataType: string
+		displayFolder: Personal Info
+		lineageTag: 2f0390cd-9d87-4a4c-b5b1-c35d9696eb43
+		summarizeBy: none
+		sourceColumn: NAME-FULL
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Telework Indicator'
+		dataType: string
+		displayFolder: Telework
+		lineageTag: c5254e9b-c7d3-4d05-b5a7-414ec2c377e8
+		summarizeBy: none
+		sourceColumn: Telework Indicator
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Telework Indicator Desc'
+		dataType: string
+		displayFolder: Telework
+		lineageTag: 0f46701f-976e-40cb-b407-14c53e682f99
+		summarizeBy: none
+		sourceColumn: Telework Indicator Desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Telework Eligibility'
+		dataType: string
+		displayFolder: Telework
+		lineageTag: f1fdae1a-00ac-4c4c-a968-310bc5d246e4
+		summarizeBy: none
+		sourceColumn: Telework Eligibility
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Telework Eligibility Desc'
+		dataType: string
+		displayFolder: Telework
+		lineageTag: 57037034-6007-4582-a368-73a2ae1e6813
+		summarizeBy: none
+		sourceColumn: Telework Eligibility Desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Handicap Code'
+		dataType: string
+		displayFolder: Demographics
+		lineageTag: 6e936bd1-ae7f-44d4-ae26-a9c799d29415
+		summarizeBy: none
+		sourceColumn: Handicap Code
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Grade level within the pay plan (1-15 for GS)
+	column 'Grade or Level'
+		dataType: string
+		displayFolder: Pay & Compensation
+		lineageTag: e58382d9-d8fa-4f3b-b403-310c6d9275c6
+		summarizeBy: none
+		sourceColumn: Grade or Level
+
+		annotation SummarizationSetBy = Automatic
+
+	column TARGET_GR_CIV
+		dataType: string
+		displayFolder: Pay & Compensation
+		lineageTag: 96bfa39c-3e0d-4c23-83fa-e382c7f1e646
+		summarizeBy: none
+		sourceColumn: TARGET_GR_CIV
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'WGI Last Equivalent Increase'
+		dataType: string
+		displayFolder: Dates
+		lineageTag: a62667f4-1446-45af-9a67-c336b937a089
+		summarizeBy: none
+		sourceColumn: WGI Last Equivalent Increase
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dt Last Promotion'
+		dataType: string
+		displayFolder: Dates
+		lineageTag: 9fc457cb-a24f-4d7b-9807-467a8a6c999c
+		summarizeBy: none
+		sourceColumn: Dt Last Promotion
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tenure
+		dataType: string
+		displayFolder: Tenure
+		lineageTag: 95c13bea-64e2-4539-a221-98606dc848ab
+		summarizeBy: none
+		sourceColumn: Tenure
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Country World Citizenship'
+		dataType: string
+		displayFolder: Demographics
+		lineageTag: 34676d3c-1257-4121-a520-8696de55f471
+		summarizeBy: none
+		sourceColumn: Country World Citizenship
+
+		annotation SummarizationSetBy = Automatic
+
+	column CCPO_ID
+		dataType: string
+		lineageTag: 8218cb7b-309a-4d7f-b48a-9decbf7e1a0a
+		summarizeBy: none
+		sourceColumn: CCPO_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Competitive Level'
+		dataType: string
+		lineageTag: f5a1b490-8b33-447c-8d20-f26bbdc6a58a
+		summarizeBy: none
+		sourceColumn: Competitive Level
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Physical work location code
+	column Location
+		dataType: string
+		displayFolder: Position
+		lineageTag: a9f959cc-c5cb-4c86-8d0e-97fce68b548d
+		summarizeBy: none
+		sourceColumn: Location
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Manpower PCN'
+		dataType: string
+		displayFolder: Position
+		lineageTag: 3026bb71-23aa-45e7-97de-1edfe7ea55fd
+		summarizeBy: none
+		sourceColumn: Manpower PCN
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'PAS Code'
+		dataType: string
+		lineageTag: d77d3040-e7ab-4225-a47d-ee37f9c1c8c9
+		summarizeBy: none
+		sourceColumn: PAS Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAS_AUTH
+		dataType: string
+		lineageTag: 4ef4164f-735f-43b3-9504-e40236dd63ec
+		summarizeBy: none
+		sourceColumn: PAS_AUTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Personnel Office ID'
+		dataType: string
+		displayFolder: Organization
+		lineageTag: e7d38794-5a71-4150-87b1-75b00c8cba41
+		summarizeBy: none
+		sourceColumn: Personnel Office ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Org Structure ID'
+		dataType: string
+		displayFolder: Organization
+		lineageTag: 0a76909d-3a95-4304-8fa6-05f160993a04
+		summarizeBy: none
+		sourceColumn: Org Structure ID
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Official position title from the position description
+	column Title
+		dataType: string
+		displayFolder: Position
+		lineageTag: f6b01d32-5e83-4b0c-9d9e-5153a2ca6508
+		summarizeBy: none
+		sourceColumn: Title
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Psn Sensitivity'
+		dataType: string
+		lineageTag: 49f03c11-4b8f-4c25-9439-5803c6eef6fe
+		summarizeBy: none
+		sourceColumn: Psn Sensitivity
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Unit ID Code'
+		dataType: string
+		displayFolder: Organization
+		lineageTag: b5c90156-fdd3-44d2-8f5d-c26491b8094f
+		summarizeBy: none
+		sourceColumn: Unit ID Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Basic Salary Rate'
+		dataType: decimal
+		displayFolder: Pay & Compensation
+		lineageTag: 1ff6a88d-3662-413c-a51b-091407f3c1a6
+		summarizeBy: none
+		sourceColumn: Basic Salary Rate
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Locality Pay Rate'
+		dataType: decimal
+		displayFolder: Pay & Compensation
+		lineageTag: 103efe01-0ce9-40e5-a81d-923dd59d8cee
+		summarizeBy: none
+		sourceColumn: Locality Pay Rate
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Pay Amt'
+		dataType: decimal
+		displayFolder: Pay & Compensation
+		lineageTag: 7b7a585e-b2f3-4af2-9e89-659231b19c3a
+		summarizeBy: none
+		sourceColumn: Total Pay Amt
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pay Rate Determinant'
+		dataType: string
+		displayFolder: Pay & Compensation
+		lineageTag: 8f01eaac-eddf-4b5c-893d-4620e130c90a
+		summarizeBy: none
+		sourceColumn: Pay Rate Determinant
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Bargaining Unit Status'
+		dataType: string
+		displayFolder: Position
+		lineageTag: c0b6d43d-abea-4a2f-9a89-5f84d69b17af
+		summarizeBy: none
+		sourceColumn: Bargaining Unit Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Payroll Office ID'
+		dataType: string
+		lineageTag: c06adf7d-54d9-4abd-8c8f-454a844d0e49
+		summarizeBy: none
+		sourceColumn: Payroll Office ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pay Basis'
+		dataType: string
+		displayFolder: Pay & Compensation
+		lineageTag: 0fe0064a-701b-425e-9221-2cb1946b6b64
+		summarizeBy: none
+		sourceColumn: Pay Basis
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pay Table ID'
+		dataType: string
+		displayFolder: Pay & Compensation
+		lineageTag: e300e58c-74db-46f9-a30b-c30bf4dc2d33
+		summarizeBy: none
+		sourceColumn: Pay Table ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Work Schedule'
+		dataType: string
+		lineageTag: adea8202-0859-4444-9096-c2b04fc882d4
+		summarizeBy: none
+		sourceColumn: Work Schedule
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Reserve Category'
+		dataType: string
+		lineageTag: 5c271649-8441-4568-abbe-bedaedbb936c
+		summarizeBy: none
+		sourceColumn: Reserve Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Veterans Preference'
+		dataType: string
+		lineageTag: 4e42a342-90ef-4f86-9ed9-e933d9267f05
+		summarizeBy: none
+		sourceColumn: Veterans Preference
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Veterans Status'
+		dataType: string
+		lineageTag: 983741eb-efcc-48f0-a14f-d6751591aa4c
+		summarizeBy: none
+		sourceColumn: Veterans Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Veteran Status Desc'
+		dataType: string
+		lineageTag: 572bbe88-056b-4be6-be07-91b7e2c03b79
+		summarizeBy: none
+		sourceColumn: Veteran Status Desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dt Appraisal  Effective'
+		dataType: string
+		lineageTag: 0345780e-c156-4bd6-83b7-45a915ed9024
+		summarizeBy: none
+		sourceColumn: Dt Appraisal  Effective
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Rating of Record'
+		dataType: string
+		lineageTag: aec96341-81a7-4d3a-b782-723f03fc918e
+		summarizeBy: none
+		sourceColumn: Rating of Record
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Appraisal Type'
+		dataType: string
+		lineageTag: 5daa4a14-b333-4fbf-8204-83082b967e8a
+		summarizeBy: none
+		sourceColumn: Appraisal Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Supervisory Status'
+		dataType: string
+		displayFolder: Position
+		lineageTag: 493c97dd-b516-427a-aedf-710532bd5900
+		summarizeBy: none
+		sourceColumn: Supervisory Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dt Assigned Current Agency'
+		dataType: string
+		lineageTag: 184e8080-c2e5-49f0-92f2-cfdb6723e3bd
+		summarizeBy: none
+		sourceColumn: Dt Assigned Current Agency
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Retirement Plan'
+		dataType: string
+		lineageTag: a9f11d90-51e2-4f4a-8b0e-1d69002c1579
+		summarizeBy: none
+		sourceColumn: Retirement Plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Appointment Type'
+		dataType: string
+		lineageTag: 0d68c7d4-20e1-4248-9e69-5e7238617d8d
+		summarizeBy: none
+		sourceColumn: Appointment Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Current Appointment Auth 1'
+		dataType: string
+		lineageTag: ddfa7b10-e9da-4111-9802-5c75b44c627e
+		summarizeBy: none
+		sourceColumn: Current Appointment Auth 1
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Current Appointment Auth 2'
+		dataType: string
+		lineageTag: a94c31f9-61c3-40e0-8b73-cf71d86d5021
+		summarizeBy: none
+		sourceColumn: Current Appointment Auth 2
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Duty Status'
+		dataType: string
+		lineageTag: 75e8524e-87a7-4d99-9aa7-6eb6d236a388
+		summarizeBy: none
+		sourceColumn: Duty Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dt Arrived Personnel Office'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 15f72d3e-e025-4659-a2e5-ec41eafd615b
+		summarizeBy: none
+		sourceColumn: Dt Arrived Personnel Office
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Psn Seq'
+		dataType: string
+		lineageTag: 5bc915e2-f941-4888-b1e3-116d2a701967
+		summarizeBy: none
+		sourceColumn: Psn Seq
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'WGI Dt Due'
+		dataType: string
+		lineageTag: 9ea4d9ad-1fd7-435a-b000-0dca625c2f28
+		summarizeBy: none
+		sourceColumn: WGI Dt Due
+
+		annotation SummarizationSetBy = Automatic
+
+	column FUNDING_CATEGORIES
+		dataType: string
+		lineageTag: e2a62caf-ded2-4741-b91b-e633d793429c
+		summarizeBy: none
+		sourceColumn: FUNDING_CATEGORIES
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAYROLL_COST_CODE
+		dataType: string
+		lineageTag: 387fde49-66d1-4b99-978a-4e58c3562764
+		summarizeBy: none
+		sourceColumn: PAYROLL_COST_CODE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Occupation Category Code'
+		dataType: string
+		displayFolder: Position
+		lineageTag: 62a2e4f4-aadb-41b1-abc8-6f48f11f2a87
+		summarizeBy: none
+		sourceColumn: Occupation Category Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'FLSA Category'
+		dataType: string
+		displayFolder: Position
+		lineageTag: 7c8fa9a1-0543-43a1-99fb-ad4eb16a5255
+		summarizeBy: none
+		sourceColumn: FLSA Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ethnicity and Race Full Desc'
+		dataType: string
+		displayFolder: Demographics
+		lineageTag: bd3cdffc-b86e-4e31-a805-7f63802b203f
+		summarizeBy: none
+		sourceColumn: Ethnicity and Race Full Desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ethnicity and Race Full'
+		dataType: string
+		displayFolder: Demographics
+		lineageTag: 7a2d1cde-b984-454a-a9d6-74ae1faed669
+		summarizeBy: none
+		sourceColumn: Ethnicity and Race Full
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'IA Category'
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: 231ee858-ac43-480f-9ad7-0778e8113c73
+		summarizeBy: none
+		sourceColumn: IA Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column IA_CATEGORY_TEXT
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: 7215c8ed-fd16-4345-acc0-7200fec57cfc
+		summarizeBy: none
+		sourceColumn: IA_CATEGORY_TEXT
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'IA Level'
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: f666e3ce-5361-4694-bd1f-2fb67783049d
+		summarizeBy: none
+		sourceColumn: IA Level
+
+		annotation SummarizationSetBy = Automatic
+
+	column IA_LEVEL_TEXT
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: a7ffc5c7-12b2-45fe-a1ba-af2fee996912
+		summarizeBy: none
+		sourceColumn: IA_LEVEL_TEXT
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'IA Duty'
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: 347e29c8-93ba-4ff2-b9bc-091e0b3f0118
+		summarizeBy: none
+		sourceColumn: IA Duty
+
+		annotation SummarizationSetBy = Automatic
+
+	column IA_DUTY_TEXT
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: 58ce57c1-8a45-4e1e-9a0c-7caf6776271a
+		summarizeBy: none
+		sourceColumn: IA_DUTY_TEXT
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Psn Specialty Code'
+		dataType: string
+		lineageTag: 697e2bd3-8128-4fb1-be1b-a8100b043590
+		summarizeBy: none
+		sourceColumn: Psn Specialty Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'IA Workforce Category'
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: d652194f-73ba-46cc-b7d3-a7b671b7b8d2
+		summarizeBy: none
+		sourceColumn: IA Workforce Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'IA Specialty Type'
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: c72a5744-4b14-42ad-9b6a-cae6784f1d4b
+		summarizeBy: none
+		sourceColumn: IA Specialty Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'IA Workforce Level'
+		dataType: string
+		displayFolder: IA Workforce
+		lineageTag: 3f16445b-2261-4779-b5bf-925dc3801925
+		summarizeBy: none
+		sourceColumn: IA Workforce Level
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dt Appt Ltr Signed'
+		dataType: string
+		lineageTag: 6d5b4e9f-c34e-4691-9357-992ca1204c73
+		summarizeBy: none
+		sourceColumn: Dt Appt Ltr Signed
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cumulative Sustainment Tng Hrs'
+		dataType: string
+		lineageTag: b052101d-d4e9-470e-a4b9-4b863616f0e0
+		summarizeBy: none
+		sourceColumn: Cumulative Sustainment Tng Hrs
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'In Sourced Indicator'
+		dataType: string
+		lineageTag: 60525ff8-552c-4bb9-8877-b6441e9211ae
+		summarizeBy: none
+		sourceColumn: In Sourced Indicator
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'In Sourced Date'
+		dataType: string
+		lineageTag: b59a504b-4ecd-492c-a792-48143a821413
+		summarizeBy: none
+		sourceColumn: In Sourced Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Orig In Source Seq Num'
+		dataType: string
+		lineageTag: 618c2323-e206-495c-933d-03e5eaf0c5d9
+		summarizeBy: none
+		sourceColumn: Orig In Source Seq Num
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Billet OUID'
+		dataType: string
+		lineageTag: e93b8151-5429-4aca-8518-d62c3a82c97d
+		summarizeBy: none
+		sourceColumn: Billet OUID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Billet OUID Start Date'
+		dataType: string
+		lineageTag: 9a758a47-cae5-4322-9384-dfb5c82b0aaa
+		summarizeBy: none
+		sourceColumn: Billet OUID Start Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pers Primary Work Role'
+		dataType: string
+		lineageTag: de6beeec-0de4-4e91-83dc-91547da89f57
+		summarizeBy: none
+		sourceColumn: Pers Primary Work Role
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pers Primary Work Role Desc'
+		dataType: string
+		lineageTag: cf698602-3938-4952-8ca2-faf8a0102da6
+		summarizeBy: none
+		sourceColumn: Pers Primary Work Role Desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pers Additional Work Role 1'
+		dataType: string
+		lineageTag: 94fef3c1-3f0e-4c28-b90f-7ce844cd4689
+		summarizeBy: none
+		sourceColumn: Pers Additional Work Role 1
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pers Additional Work Role 1 Desc'
+		dataType: string
+		lineageTag: 07d21e7e-465d-4462-b8f5-0b05a33c9748
+		summarizeBy: none
+		sourceColumn: Pers Additional Work Role 1 Desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pers Additional Work Role 2'
+		dataType: string
+		lineageTag: b5a5fdbf-4b16-477c-b232-50d4279025f3
+		summarizeBy: none
+		sourceColumn: Pers Additional Work Role 2
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pers Additional Work Role 2 Desc'
+		dataType: string
+		lineageTag: be84e4b2-7f08-4108-89e1-ff0fee11ea37
+		summarizeBy: none
+		sourceColumn: Pers Additional Work Role 2 Desc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Snapshot Date'
+		dataType: dateTime
+		formatString: Long Date
+		displayFolder: Dates
+		lineageTag: b32388e7-2277-49c5-ab5a-3c4696fefb1e
+		summarizeBy: none
+		sourceColumn: Snapshot Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'ORG First 2'
+		dataType: string
+		isHidden
+		displayFolder: Keys
+		lineageTag: e0cc3f4b-713f-4777-b3be-e7648ced2f2b
+		summarizeBy: none
+		sourceColumn: ORG First 2
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Two-character center/directorate code for organizational filtering
+	column Center
+		dataType: string
+		displayFolder: Organization
+		lineageTag: 27001754-bbe0-4146-b852-19cddca63c73
+		summarizeBy: none
+		sourceColumn: Center
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Full organization name within the center
+	column Org
+		dataType: string
+		displayFolder: Organization
+		lineageTag: 50686a1a-cd02-470a-a2c5-dd4709d31fff
+		summarizeBy: none
+		sourceColumn: Org
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsStudentIntern
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		displayFolder: Flags
+		lineageTag: d56b4ec1-27b1-4802-a141-c7177d9d045a
+		summarizeBy: none
+		sourceColumn: IsStudentIntern
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Calculated employee age based on date of birth
+	column Age = ```
+			DATEDIFF(Fact_EmployeeSnapshot[Dt of Birth], Fact_EmployeeSnapshot[Snapshot Date], YEAR)
+			
+			```
+		formatString: 0
+		displayFolder: Personal Info
+		lineageTag: dc7db74d-2ff8-41aa-abe0-c71ec59955f6
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Age range bucket for demographic analysis
+	column 'Age Group' = ```
+			
+			SWITCH(
+			    TRUE(),
+			    'Fact_EmployeeSnapshot'[Age] < 25, "< 25",
+			    'Fact_EmployeeSnapshot'[Age] <= 34, "25-34",
+			    'Fact_EmployeeSnapshot'[Age] <= 44, "35-44",
+			    'Fact_EmployeeSnapshot'[Age] <= 55, "45-55",
+			    "> 55"
+			)
+			
+			```
+		displayFolder: Personal Info
+		lineageTag: 53a2c15b-24a9-4034-bd63-2f55ce9f95aa
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsNewHire = ```
+			
+			VAR YearsOfService = DIVIDE(
+			    DATEDIFF(Fact_EmployeeSnapshot[Dt Arrived Personnel Office], Fact_EmployeeSnapshot[Snapshot Date], DAY),
+			    365.25
+			)
+			RETURN
+			    YearsOfService <= 2
+			
+			```
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		displayFolder: Tenure
+		lineageTag: 2e50f121-a453-44ac-90c6-6b9cf5c0563b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Calculated years of federal civilian service
+	column 'Years of Service' = ```
+			
+			VAR ServiceDays = DATEDIFF(Fact_EmployeeSnapshot[Dt Arrived Personnel Office], Fact_EmployeeSnapshot[Snapshot Date], DAY)
+			RETURN
+			    IF(ServiceDays >= 0, DIVIDE(ServiceDays, 365.25), 0)
+			
+			```
+		displayFolder: Tenure
+		lineageTag: 6ffcc0f4-6d0d-48d2-ae8d-261527e2da47
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Sort order for Tenure Bucket to ensure proper sequencing
+	column 'Tenure Bucket Sort Order' = ```
+			
+			VAR YoS = [Years of Service]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        YoS < 2, 1,
+			        YoS < 5, 2,
+			        YoS < 10, 3,
+			        YoS < 20, 4,
+			        YoS >= 20, 5,
+			        99
+			    )
+			
+			```
+		formatString: 0
+		displayFolder: Tenure
+		lineageTag: 322674a6-7d76-4206-ba49-28763ea7ed1b
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Tenure grouping for retention analysis (0-1 yr, 1-3 yr, 3-5 yr, etc.)
+	column 'Tenure Bucket' = ```
+			
+			SWITCH(
+			    [Tenure Bucket Sort Order],
+			    1, "0-2 years",
+			    2, "2-5 years",
+			    3, "5-10 years",
+			    4, "10-20 years",
+			    5, "20+ years",
+			    "Unknown"
+			)
+			
+			```
+		displayFolder: Tenure
+		lineageTag: 05fd44f4-6d88-45f8-9073-920dbfe9af1f
+		summarizeBy: none
+		sortByColumn: 'Tenure Bucket Sort Order'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column CompositeKey
+		dataType: string
+		isHidden
+		displayFolder: Keys
+		lineageTag: ee52446c-9f81-4a90-b357-f4c1dec6c919
+		summarizeBy: none
+		sourceColumn: CompositeKey
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Pay grade drill-down from Pay Plan to Grade to Step
+	hierarchy 'Grade Hierarchy'
+
+		level 'Pay Plan'
+			column: 'Pay Plan Current'
+
+		level Grade
+			column: 'Grade or Level'
+
+		level Step
+			column: 'Step or Rate'
+
+	/// Tenure drill-down from bucket to specific years of service
+	hierarchy 'Tenure Hierarchy'
+
+		level 'Tenure Bucket'
+			column: 'Tenure Bucket'
+
+		level 'Years of Service'
+			column: 'Years of Service'
+
+	partition Fact_EmployeeSnapshot = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://dod365.sharepoint-mil.us/teams/DISA-AttritionRetentionAutomation/", [ApiVersion=15]),
+				    #"Filter Folder" = Table.SelectRows(Source, each Text.EndsWith([Folder Path], "https://dod365.sharepoint-mil.us/teams/DISA-AttritionRetentionAutomation/Shared Documents/Attrition-Retention Automation/TEST/NewTest/")),
+				    #"Filter Name" = Table.SelectRows(#"Filter Folder", each Text.StartsWith([Name], "DISA Empl")),
+				    #"Filter Hidden" = Table.SelectRows(#"Filter Name", each [Attributes]?[Hidden]? <> true),
+				    AddSnapshotDate = Table.AddColumn(#"Filter Hidden", "Snapshot Date", each let base = Text.BeforeDelimiter([Name], ".xlsx"), parts = Text.Split(base, " "), count = List.Count(parts), dayText = parts{count-3}, monthText = parts{count-2}, yearText = parts{count-1}, dayNum = try Number.From(dayText) otherwise 1, yearNum = Number.From("20" & yearText), monthNum = Date.Month(Date.FromText("1 " & monthText & " 2000")) in #date(yearNum, monthNum, dayNum), type date),
+				    AddData = Table.AddColumn(AddSnapshotDate, "Data", each let currentSnapshotDate = [Snapshot Date], FileContent = try let sourceTable = Excel.Workbook([Content], null, true){[Item="Table1", Kind="Table"]}[Data], withDate = Table.AddColumn(sourceTable, "Snapshot Date", each currentSnapshotDate, type date) in withDate otherwise null in FileContent),
+				    #"Keep With Data" = Table.SelectRows(AddData, each [Data] <> null),
+				    CombinedData = Table.Combine(#"Keep With Data"[Data]),
+				    #"Changed Type" = Table.TransformColumnTypes(CombinedData,{{"DoD ID (EDIPI)", type text}, {"Org Structure ID", type text}, {"Occ Series Current", type text}, {"Title", type text}, {"Manpower PCN", type text}, {"Dt Arrived Personnel Office", type date}, {"Dt of Birth", type date}}),
+				    AddOrgPrefix = Table.AddColumn(#"Changed Type", "ORG First 2", each try Text.Start(Text.Trim([#"Org Structure ID"]), 2) otherwise null, type text),
+				    JoinOrg = Table.NestedJoin(AddOrgPrefix, {"ORG First 2"}, Dim_Organization, {"Dcode"}, "OrgMap", JoinKind.LeftOuter),
+				    ExpandOrg = Table.ExpandTableColumn(JoinOrg, "OrgMap", {"Center", "Org"}, {"Center", "Org"}),
+				    AddStudentInternFlag = Table.AddColumn(ExpandOrg, "IsStudentIntern", each let title = Text.Lower(Text.From(try [Title] otherwise "")), series = Text.From(try [#"Occ Series Current"] otherwise ""), pcn = Text.Upper(Text.From(try [#"Manpower PCN"] otherwise "")) in ((Text.Contains(title, "student") or Text.EndsWith(series, "99")) and not (Text.Contains(pcn, "RG") or Text.Contains(pcn, "VT"))), type logical),
+				    #"Added Composite Key" = Table.AddColumn(
+				    AddStudentInternFlag,
+				    "CompositeKey",
+				    each Text.Upper(Text.Select([#"Manpower PCN"], {"A".."Z", "a".."z", "0".."9"})) & "-" & Text.Upper(Text.Select([#"NAME-FULL"], {"A".."Z", "a".."z"}))
+				)
+				
+				
+				in
+				    #"Added Composite Key"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

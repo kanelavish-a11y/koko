@@ -1,0 +1,24 @@
+relationship d9d24692-8553-878b-43aa-a312cebfcdf1
+	fromColumn: Fact_EmployeeSnapshot.'ORG First 2'
+	toColumn: Dim_Organization.Dcode
+
+relationship c6fc082b-0fd8-540e-2c1b-e775d8dedc30
+	fromColumn: Fact_PersonnelActions.'From ORG 2 Digit'
+	toColumn: Dim_Organization.Dcode
+
+relationship AutoDetected_b8c66a54-689a-416f-a198-a632b1d60c24
+	fromColumn: Fact_EmployeeSnapshot.'Occ Series Current'
+	toColumn: Dim_Series.'Occ Series Current'
+
+relationship fbba7600-0982-0997-91a0-a4f1e62fc7c3
+	fromColumn: Fact_PersonnelActions.FROM_OCC_CODE_9
+	toColumn: Dim_Series.'Occ Series Current'
+
+relationship 52264a45-0afa-ba8e-ead4-ee2c395b8c59
+	fromColumn: Fact_EmployeeSnapshot.CompositeKey
+	toColumn: Dim_Employee.CompositeKey
+
+relationship 68334c51-0370-10b9-e537-213f7749c93b
+	fromColumn: Fact_PersonnelActions.CompositeKey
+	toColumn: Dim_Employee.CompositeKey
+

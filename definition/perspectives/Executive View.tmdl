@@ -1,0 +1,32 @@
+/// High-level KPIs and rates for executive dashboards
+perspective 'Executive View'
+
+	perspectiveTable _Measures
+
+		perspectiveMeasure 'On-Hand Count (Start)'
+
+		perspectiveMeasure 'On-Hand Count (End)'
+
+		perspectiveMeasure 'Total Losses'
+
+		perspectiveMeasure 'Attrition Rate'
+
+		perspectiveMeasure 'Retention Rate'
+
+		perspectiveMeasure 'Net Change'
+
+		perspectiveMeasure 'Dynamic Title - Date Range'
+
+	perspectiveTable Dim_Organization
+
+		perspectiveColumn Center
+
+		perspectiveColumn Org
+
+	perspectiveTable SnapshotDate_Start
+
+	perspectiveTable SnapshotDate_End
+
+	perspectiveTable 'Time Comparison'
+		includeAll
+

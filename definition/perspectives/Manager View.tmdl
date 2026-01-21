@@ -1,0 +1,57 @@
+/// Manager-focused view with organizational context
+perspective 'Manager View'
+
+	perspectiveTable _Measures
+
+		perspectiveMeasure 'On-Hand Count (Start)'
+
+		perspectiveMeasure 'On-Hand Count (End)'
+
+		perspectiveMeasure 'Average On-Hand Count'
+
+		perspectiveMeasure 'Total Losses'
+
+		perspectiveMeasure 'Voluntary Losses'
+
+		perspectiveMeasure 'Non-Voluntary Losses'
+
+		perspectiveMeasure 'Attrition Rate'
+
+		perspectiveMeasure 'Voluntary Attrition Rate'
+
+		perspectiveMeasure 'Non-Voluntary Attrition Rate'
+
+		perspectiveMeasure 'Retention Rate'
+
+		perspectiveMeasure 'Net Change'
+
+		perspectiveMeasure 'Total Gains'
+
+		perspectiveMeasure 'Dynamic Title - Date Range'
+
+	perspectiveTable Dim_Organization
+		includeAll
+
+	perspectiveTable Fact_EmployeeSnapshot
+
+		perspectiveColumn Center
+
+		perspectiveColumn Org
+
+		perspectiveColumn Title
+
+		perspectiveColumn 'Grade or Level'
+
+		perspectiveColumn 'Tenure Bucket'
+
+		perspectiveColumn 'Age Group'
+
+	perspectiveTable SnapshotDate_Start
+		includeAll
+
+	perspectiveTable SnapshotDate_End
+		includeAll
+
+	perspectiveTable 'Time Comparison'
+		includeAll
+
