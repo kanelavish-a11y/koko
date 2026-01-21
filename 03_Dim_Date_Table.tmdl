@@ -1,0 +1,239 @@
+createOrReplace
+	table Dim_Date
+		lineageTag: 11111111-2222-3333-4444-555555555555
+		dataCategory: Time
+
+		column Date
+			dataType: dateTime
+			isKey: true
+			formatString: Short Date
+			lineageTag: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+			summarizeBy: none
+			sourceColumn: [Date]
+
+			annotation SummarizationSetBy = Automatic
+
+		column Year
+			dataType: int64
+			formatString: 0
+			lineageTag: 11111111-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Year]
+
+			annotation SummarizationSetBy = Automatic
+
+		column Month
+			dataType: int64
+			formatString: 0
+			lineageTag: 22222222-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Month]
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Month Name'
+			dataType: string
+			lineageTag: 33333333-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Month Name]
+			sortByColumn: Month
+
+			annotation SummarizationSetBy = Automatic
+
+		column Quarter
+			dataType: int64
+			formatString: 0
+			lineageTag: 44444444-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Quarter]
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Quarter Name'
+			dataType: string
+			lineageTag: 55555555-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Quarter Name]
+			sortByColumn: Quarter
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Fiscal Year'
+			dataType: int64
+			formatString: 0
+			lineageTag: 66666666-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Fiscal Year]
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Fiscal Year Name'
+			dataType: string
+			lineageTag: 77777777-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Fiscal Year Name]
+			sortByColumn: 'Fiscal Year'
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Fiscal Quarter'
+			dataType: int64
+			formatString: 0
+			lineageTag: 88888888-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Fiscal Quarter]
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Fiscal Quarter Name'
+			dataType: string
+			lineageTag: 99999999-aaaa-bbbb-cccc-dddddddddddd
+			summarizeBy: none
+			sourceColumn: [Fiscal Quarter Name]
+			sortByColumn: 'Fiscal Quarter'
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Fiscal Month'
+			dataType: int64
+			formatString: 0
+			lineageTag: aaaaaaaa-1111-2222-3333-444444444444
+			summarizeBy: none
+			sourceColumn: [Fiscal Month]
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Day of Week'
+			dataType: int64
+			formatString: 0
+			lineageTag: bbbbbbbb-1111-2222-3333-444444444444
+			summarizeBy: none
+			sourceColumn: [Day of Week]
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Day Name'
+			dataType: string
+			lineageTag: cccccccc-1111-2222-3333-444444444444
+			summarizeBy: none
+			sourceColumn: [Day Name]
+			sortByColumn: 'Day of Week'
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Is Weekend'
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			lineageTag: dddddddd-1111-2222-3333-444444444444
+			summarizeBy: none
+			sourceColumn: [Is Weekend]
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'Year-Month'
+			dataType: string
+			lineageTag: eeeeeeee-1111-2222-3333-444444444444
+			summarizeBy: none
+			sourceColumn: [Year-Month]
+
+			annotation SummarizationSetBy = Automatic
+
+		column 'FY-Quarter'
+			dataType: string
+			lineageTag: ffffffff-1111-2222-3333-444444444444
+			summarizeBy: none
+			sourceColumn: [FY-Quarter]
+
+			annotation SummarizationSetBy = Automatic
+
+		hierarchy 'Calendar Hierarchy'
+			lineageTag: 12121212-3434-5656-7878-909090909090
+
+			level Year
+				lineageTag: abababab-cdcd-efef-1212-343434343434
+				column: Year
+
+			level Quarter
+				lineageTag: bcbcbcbc-dede-f0f0-2323-454545454545
+				column: 'Quarter Name'
+
+			level Month
+				lineageTag: cdcdcdcd-efef-0101-3434-565656565656
+				column: 'Month Name'
+
+			level Date
+				lineageTag: dededede-f0f0-1212-4545-676767676767
+				column: Date
+
+		hierarchy 'Fiscal Hierarchy'
+			lineageTag: 23232323-4545-6767-8989-ababababababab
+
+			level 'Fiscal Year'
+				lineageTag: fefefefe-0101-2323-5656-787878787878
+				column: 'Fiscal Year Name'
+
+			level 'Fiscal Quarter'
+				lineageTag: 01010101-2323-4545-6767-898989898989
+				column: 'Fiscal Quarter Name'
+
+			level Month
+				lineageTag: 12121212-3434-5656-7878-ababababababab
+				column: 'Month Name'
+
+		partition Dim_Date = calculated
+			mode: import
+			source =
+				VAR MinDate = DATE(2020, 1, 1)
+				VAR MaxDate = DATE(2030, 12, 31)
+				VAR DateTable = 
+					ADDCOLUMNS(
+						CALENDAR(MinDate, MaxDate),
+						"Year", YEAR([Date]),
+						"Month", MONTH([Date]),
+						"Month Name", FORMAT([Date], "MMMM"),
+						"Quarter", QUARTER([Date]),
+						"Quarter Name", "Q" & QUARTER([Date]),
+						"Fiscal Year", IF(MONTH([Date]) >= 10, YEAR([Date]) + 1, YEAR([Date])),
+						"Fiscal Year Name", "FY" & IF(MONTH([Date]) >= 10, YEAR([Date]) + 1, YEAR([Date])),
+						"Fiscal Quarter", 
+							SWITCH(
+								TRUE(),
+								MONTH([Date]) IN {10, 11, 12}, 1,
+								MONTH([Date]) IN {1, 2, 3}, 2,
+								MONTH([Date]) IN {4, 5, 6}, 3,
+								4
+							),
+						"Fiscal Quarter Name",
+							"FQ" & 
+							SWITCH(
+								TRUE(),
+								MONTH([Date]) IN {10, 11, 12}, 1,
+								MONTH([Date]) IN {1, 2, 3}, 2,
+								MONTH([Date]) IN {4, 5, 6}, 3,
+								4
+							),
+						"Fiscal Month",
+							SWITCH(
+								MONTH([Date]),
+								10, 1, 11, 2, 12, 3,
+								1, 4, 2, 5, 3, 6,
+								4, 7, 5, 8, 6, 9,
+								7, 10, 8, 11, 9, 12
+							),
+						"Day of Week", WEEKDAY([Date]),
+						"Day Name", FORMAT([Date], "DDDD"),
+						"Is Weekend", WEEKDAY([Date]) IN {1, 7},
+						"Year-Month", FORMAT([Date], "YYYY-MM"),
+						"FY-Quarter", "FY" & IF(MONTH([Date]) >= 10, YEAR([Date]) + 1, YEAR([Date])) & "-Q" & 
+							SWITCH(
+								TRUE(),
+								MONTH([Date]) IN {10, 11, 12}, 1,
+								MONTH([Date]) IN {1, 2, 3}, 2,
+								MONTH([Date]) IN {4, 5, 6}, 3,
+								4
+							)
+					)
+				RETURN
+					DateTable
+
+		annotation PBI_Id = dim-date-federal-fiscal
