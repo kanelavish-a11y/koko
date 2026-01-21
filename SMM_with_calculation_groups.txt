@@ -1,0 +1,3237 @@
+createOrReplace
+
+	model Model
+		culture: en-US
+		defaultPowerBIDataSourceVersion: powerBI_V3
+		sourceQueryCulture: en-US
+		dataAccessOptions
+			legacyRedirects
+			returnErrorValuesAsNull
+
+		table Dim_Organization
+			lineageTag: e3f60163-62f7-421c-9292-5d9da58d959e
+
+			column Dcode
+				dataType: string
+				isHidden
+				lineageTag: 04c38bd9-ee5a-4c55-bc4b-b5b88032cea9
+				summarizeBy: none
+				sourceColumn: Dcode
+
+				annotation SummarizationSetBy = Automatic
+
+			column Center
+				dataType: string
+				lineageTag: 0fcf6097-97ca-491d-a260-52495698694f
+				summarizeBy: none
+				sourceColumn: Center
+
+				annotation SummarizationSetBy = Automatic
+
+			column Org
+				dataType: string
+				lineageTag: fcfe162c-e5a8-4058-a9cf-5121b51c8592
+				summarizeBy: none
+				sourceColumn: Org
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'CAM ID'
+				dataType: string
+				lineageTag: cad5f524-d7d9-49e9-8a84-7f21d8d1238d
+				summarizeBy: none
+				sourceColumn: CAM ID
+
+				annotation SummarizationSetBy = Automatic
+
+			hierarchy 'Organization Hierarchy'
+				lineageTag: e804699d-4972-43a5-a5dd-1560566e1985
+
+				level Center
+					lineageTag: ba140170-a012-4c36-91d8-422ec08bea20
+					column: Center
+
+				level Organization
+					lineageTag: 341fdc0a-1b9b-4d2d-9e26-d022053ea334
+					column: Org
+
+			partition Dim_Organization = m
+				mode: import
+				source =
+						let
+							Source = Excel.Workbook(Web.Contents("https://dod365.sharepoint-mil.us/teams/DISA-AttritionRetentionAutomation/Shared%20Documents/Attrition-Retention%20Automation/TEST/OrgMAPPING.xlsx"), null, true),
+							Mapping_Sheet = Source{[Item="Mapping",Kind="Sheet"]}[Data],
+							#"Promoted Headers" = Table.PromoteHeaders(Mapping_Sheet, [PromoteAllScalars=true]),
+							#"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Dcode", type text}, {"Center", type text}, {"Org", type text}, {"CAM ID", type text}})
+						in
+							#"Changed Type"
+
+			annotation PBI_NavigationStepName = Navigation
+
+			annotation PBI_ResultType = Table
+
+		table Fact_EmployeeSnapshot
+			lineageTag: 1e6d7718-c038-4c73-9a44-c03ed5ec66c1
+
+			/// Department of Defense Identification number - unique employee identifier
+			column 'DoD ID (EDIPI)'
+				dataType: string
+				displayFolder: Personal Info
+				lineageTag: c4360df1-35ff-40f2-b2ee-7c5f418be5f7
+				summarizeBy: none
+				sourceColumn: DoD ID (EDIPI)
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Dt of Birth'
+				dataType: dateTime
+				formatString: Long Date
+				displayFolder: Personal Info
+				lineageTag: aece05f7-214b-4318-992d-55d77c624cae
+				summarizeBy: none
+				sourceColumn: Dt of Birth
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation UnderlyingDateTimeDataType = Date
+
+			column Sex
+				dataType: string
+				displayFolder: Personal Info
+				lineageTag: e5208cb9-16c8-48b7-8e97-37f97bb9d081
+				summarizeBy: none
+				sourceColumn: Sex
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Pay plan code (GS, WG, etc.) defining the employee's compensation schedule
+			column 'Pay Plan Current'
+				dataType: string
+				displayFolder: Pay & Compensation
+				lineageTag: 7b004e39-e707-46a0-bdcb-588412c002dd
+				summarizeBy: none
+				sourceColumn: Pay Plan Current
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Current occupational series code (4-digit OPM classification)
+			column 'Occ Series Current'
+				dataType: string
+				isHidden
+				displayFolder: Keys
+				lineageTag: c0e7011c-cc27-4108-9d24-8ebf73943074
+				summarizeBy: none
+				sourceColumn: Occ Series Current
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Employee's full legal name (Last, First Middle)
+			column NAME-FULL
+				dataType: string
+				displayFolder: Personal Info
+				lineageTag: 2f0390cd-9d87-4a4c-b5b1-c35d9696eb43
+				summarizeBy: none
+				sourceColumn: NAME-FULL
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Grade level within the pay plan (1-15 for GS)
+			column 'Grade or Level'
+				dataType: string
+				displayFolder: Pay & Compensation
+				lineageTag: e58382d9-d8fa-4f3b-b403-310c6d9275c6
+				summarizeBy: none
+				sourceColumn: Grade or Level
+
+				annotation SummarizationSetBy = Automatic
+
+			column Tenure
+				dataType: string
+				displayFolder: Tenure
+				lineageTag: 95c13bea-64e2-4539-a221-98606dc848ab
+				summarizeBy: none
+				sourceColumn: Tenure
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Manpower PCN'
+				dataType: string
+				displayFolder: Position
+				lineageTag: 3026bb71-23aa-45e7-97de-1edfe7ea55fd
+				summarizeBy: none
+				sourceColumn: Manpower PCN
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Org Structure ID'
+				dataType: string
+				displayFolder: Organization
+				lineageTag: 0a76909d-3a95-4304-8fa6-05f160993a04
+				summarizeBy: none
+				sourceColumn: Org Structure ID
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Official position title from the position description
+			column Title
+				dataType: string
+				displayFolder: Position
+				lineageTag: f6b01d32-5e83-4b0c-9d9e-5153a2ca6508
+				summarizeBy: none
+				sourceColumn: Title
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Supervisory Status'
+				dataType: string
+				displayFolder: Position
+				lineageTag: 493c97dd-b516-427a-aedf-710532bd5900
+				summarizeBy: none
+				sourceColumn: Supervisory Status
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Dt Arrived Personnel Office'
+				dataType: dateTime
+				formatString: Long Date
+				lineageTag: 15f72d3e-e025-4659-a2e5-ec41eafd615b
+				summarizeBy: none
+				sourceColumn: Dt Arrived Personnel Office
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation UnderlyingDateTimeDataType = Date
+
+			column 'Snapshot Date'
+				dataType: dateTime
+				formatString: Long Date
+				displayFolder: Dates
+				lineageTag: b32388e7-2277-49c5-ab5a-3c4696fefb1e
+				summarizeBy: none
+				sourceColumn: Snapshot Date
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation UnderlyingDateTimeDataType = Date
+
+			column 'ORG First 2'
+				dataType: string
+				isHidden
+				displayFolder: Keys
+				lineageTag: e0cc3f4b-713f-4777-b3be-e7648ced2f2b
+				summarizeBy: none
+				sourceColumn: ORG First 2
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Two-character center/directorate code for organizational filtering
+			column Center
+				dataType: string
+				displayFolder: Organization
+				lineageTag: 27001754-bbe0-4146-b852-19cddca63c73
+				summarizeBy: none
+				sourceColumn: Center
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Full organization name within the center
+			column Org
+				dataType: string
+				displayFolder: Organization
+				lineageTag: 50686a1a-cd02-470a-a2c5-dd4709d31fff
+				summarizeBy: none
+				sourceColumn: Org
+
+				annotation SummarizationSetBy = Automatic
+
+			column IsStudentIntern
+				dataType: boolean
+				formatString: """TRUE"";""TRUE"";""FALSE"""
+				displayFolder: Flags
+				lineageTag: d56b4ec1-27b1-4802-a141-c7177d9d045a
+				summarizeBy: none
+				sourceColumn: IsStudentIntern
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Calculated employee age based on date of birth
+			column Age = ```
+					DATEDIFF(Fact_EmployeeSnapshot[Dt of Birth], Fact_EmployeeSnapshot[Snapshot Date], YEAR)
+					
+					```
+				formatString: 0
+				displayFolder: Personal Info
+				lineageTag: dc7db74d-2ff8-41aa-abe0-c71ec59955f6
+				summarizeBy: sum
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Age range bucket for demographic analysis
+			column 'Age Group' = ```
+					
+					SWITCH(
+						TRUE(),
+						'Fact_EmployeeSnapshot'[Age] < 25, "< 25",
+						'Fact_EmployeeSnapshot'[Age] <= 34, "25-34",
+						'Fact_EmployeeSnapshot'[Age] <= 44, "35-44",
+						'Fact_EmployeeSnapshot'[Age] <= 55, "45-55",
+						"> 55"
+					)
+					
+					```
+				displayFolder: Personal Info
+				lineageTag: 53a2c15b-24a9-4034-bd63-2f55ce9f95aa
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			column IsNewHire = ```
+					
+					VAR YearsOfService = DIVIDE(
+						DATEDIFF(Fact_EmployeeSnapshot[Dt Arrived Personnel Office], Fact_EmployeeSnapshot[Snapshot Date], DAY),
+						365.25
+					)
+					RETURN
+						YearsOfService <= 2
+					
+					```
+				formatString: """TRUE"";""TRUE"";""FALSE"""
+				displayFolder: Tenure
+				lineageTag: 2e50f121-a453-44ac-90c6-6b9cf5c0563b
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Calculated years of federal civilian service
+			column 'Years of Service' = ```
+					
+					VAR ServiceDays = DATEDIFF(Fact_EmployeeSnapshot[Dt Arrived Personnel Office], Fact_EmployeeSnapshot[Snapshot Date], DAY)
+					RETURN
+						IF(ServiceDays >= 0, DIVIDE(ServiceDays, 365.25), 0)
+					
+					```
+				displayFolder: Tenure
+				lineageTag: 6ffcc0f4-6d0d-48d2-ae8d-261527e2da47
+				summarizeBy: sum
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+			/// Sort order for Tenure Bucket to ensure proper sequencing
+			column 'Tenure Bucket Sort Order' = ```
+					
+					VAR YoS = [Years of Service]
+					RETURN
+						SWITCH(
+							TRUE(),
+							YoS < 2, 1,
+							YoS < 5, 2,
+							YoS < 10, 3,
+							YoS < 20, 4,
+							YoS >= 20, 5,
+							99
+						)
+					
+					```
+				formatString: 0
+				displayFolder: Tenure
+				lineageTag: 322674a6-7d76-4206-ba49-28763ea7ed1b
+				summarizeBy: sum
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Tenure grouping for retention analysis (0-1 yr, 1-3 yr, 3-5 yr, etc.)
+			column 'Tenure Bucket' = ```
+					
+					SWITCH(
+						[Tenure Bucket Sort Order],
+						1, "0-2 years",
+						2, "2-5 years",
+						3, "5-10 years",
+						4, "10-20 years",
+						5, "20+ years",
+						"Unknown"
+					)
+					
+					```
+				displayFolder: Tenure
+				lineageTag: 05fd44f4-6d88-45f8-9073-920dbfe9af1f
+				summarizeBy: none
+				sortByColumn: 'Tenure Bucket Sort Order'
+
+				changedProperty = SortByColumn
+
+				annotation SummarizationSetBy = Automatic
+
+			column CompositeKey
+				dataType: string
+				isHidden
+				displayFolder: Keys
+				lineageTag: ee52446c-9f81-4a90-b357-f4c1dec6c919
+				summarizeBy: none
+				sourceColumn: CompositeKey
+
+				annotation SummarizationSetBy = Automatic
+
+			column SSAN_EMPL_CON_NR
+				dataType: string
+				isHidden
+				displayFolder: Keys
+				lineageTag: 3f906007-70e0-4a4f-8cd8-11229b435512
+				summarizeBy: none
+				sourceColumn: SSAN_EMPL_CON_NR
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Employee Num'
+				dataType: string
+				displayFolder: Personal Info
+				lineageTag: 6d1ffc0f-580b-4cfc-a80e-d71c9eee6341
+				summarizeBy: none
+				sourceColumn: Employee Num
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Position ID'
+				dataType: string
+				displayFolder: Position
+				lineageTag: 4144a29a-7c34-40c6-9c5c-dc3b981cb781
+				summarizeBy: none
+				sourceColumn: Position ID
+
+				annotation SummarizationSetBy = Automatic
+
+			column CPCN
+				dataType: string
+				displayFolder: Position
+				lineageTag: 61a0e5c5-4d46-4619-8af0-118f29b381d1
+				summarizeBy: none
+				sourceColumn: CPCN
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Step within grade determining specific pay rate (1-10 for GS)
+			column 'Step or Rate'
+				dataType: string
+				displayFolder: Pay & Compensation
+				lineageTag: fb904169-38e2-407a-be50-a9379ecb3905
+				summarizeBy: none
+				sourceColumn: Step or Rate
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Service Computation Date for Leave accrual
+			column 'SCD Leave'
+				dataType: dateTime
+				formatString: Short Date
+				displayFolder: Dates
+				lineageTag: 7a8331d5-81f4-4a07-8419-41f0e00a3f8e
+				summarizeBy: none
+				sourceColumn: SCD Leave
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation UnderlyingDateTimeDataType = Date
+
+			/// Service Computation Date for Civilian service
+			column 'SCD Civilian'
+				dataType: dateTime
+				formatString: Short Date
+				displayFolder: Dates
+				lineageTag: 30b04de4-1309-4ec1-ad57-1526ca6e27a9
+				summarizeBy: none
+				sourceColumn: SCD Civilian
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation UnderlyingDateTimeDataType = Date
+
+			/// Service Computation Date for Reduction-in-Force purposes
+			column 'SCD RIF'
+				dataType: dateTime
+				formatString: Short Date
+				displayFolder: Dates
+				lineageTag: 42caffe6-b44f-428b-9561-29b554c43ddc
+				summarizeBy: none
+				sourceColumn: SCD RIF
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation UnderlyingDateTimeDataType = Date
+
+			column SALARY_HR
+				dataType: double
+				displayFolder: Pay & Compensation
+				lineageTag: 9400927f-97d1-4a6e-9e10-395a888e8eb1
+				summarizeBy: sum
+				sourceColumn: SALARY_HR
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+			column 'Telework Indicator'
+				dataType: string
+				displayFolder: Telework
+				lineageTag: c5254e9b-c7d3-4d05-b5a7-414ec2c377e8
+				summarizeBy: none
+				sourceColumn: Telework Indicator
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Telework Indicator Desc'
+				dataType: string
+				displayFolder: Telework
+				lineageTag: 0f46701f-976e-40cb-b407-14c53e682f99
+				summarizeBy: none
+				sourceColumn: Telework Indicator Desc
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Telework Eligibility'
+				dataType: string
+				displayFolder: Telework
+				lineageTag: f1fdae1a-00ac-4c4c-a968-310bc5d246e4
+				summarizeBy: none
+				sourceColumn: Telework Eligibility
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Telework Eligibility Desc'
+				dataType: string
+				displayFolder: Telework
+				lineageTag: 57037034-6007-4582-a368-73a2ae1e6813
+				summarizeBy: none
+				sourceColumn: Telework Eligibility Desc
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Handicap Code'
+				dataType: string
+				displayFolder: Demographics
+				lineageTag: 6e936bd1-ae7f-44d4-ae26-a9c799d29415
+				summarizeBy: none
+				sourceColumn: Handicap Code
+
+				annotation SummarizationSetBy = Automatic
+
+			column TARGET_GR_CIV
+				dataType: string
+				displayFolder: Pay & Compensation
+				lineageTag: 96bfa39c-3e0d-4c23-83fa-e382c7f1e646
+				summarizeBy: none
+				sourceColumn: TARGET_GR_CIV
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'WGI Last Equivalent Increase'
+				dataType: string
+				displayFolder: Dates
+				lineageTag: a62667f4-1446-45af-9a67-c336b937a089
+				summarizeBy: none
+				sourceColumn: WGI Last Equivalent Increase
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Dt Last Promotion'
+				dataType: string
+				displayFolder: Dates
+				lineageTag: 9fc457cb-a24f-4d7b-9807-467a8a6c999c
+				summarizeBy: none
+				sourceColumn: Dt Last Promotion
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Country World Citizenship'
+				dataType: string
+				displayFolder: Demographics
+				lineageTag: 34676d3c-1257-4121-a520-8696de55f471
+				summarizeBy: none
+				sourceColumn: Country World Citizenship
+
+				annotation SummarizationSetBy = Automatic
+
+			column CCPO_ID
+				dataType: string
+				lineageTag: 8218cb7b-309a-4d7f-b48a-9decbf7e1a0a
+				summarizeBy: none
+				sourceColumn: CCPO_ID
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Competitive Level'
+				dataType: string
+				lineageTag: f5a1b490-8b33-447c-8d20-f26bbdc6a58a
+				summarizeBy: none
+				sourceColumn: Competitive Level
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Physical work location code
+			column Location
+				dataType: string
+				displayFolder: Position
+				lineageTag: a9f959cc-c5cb-4c86-8d0e-97fce68b548d
+				summarizeBy: none
+				sourceColumn: Location
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'PAS Code'
+				dataType: string
+				lineageTag: d77d3040-e7ab-4225-a47d-ee37f9c1c8c9
+				summarizeBy: none
+				sourceColumn: PAS Code
+
+				annotation SummarizationSetBy = Automatic
+
+			column PAS_AUTH
+				dataType: string
+				lineageTag: 4ef4164f-735f-43b3-9504-e40236dd63ec
+				summarizeBy: none
+				sourceColumn: PAS_AUTH
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Personnel Office ID'
+				dataType: string
+				displayFolder: Organization
+				lineageTag: e7d38794-5a71-4150-87b1-75b00c8cba41
+				summarizeBy: none
+				sourceColumn: Personnel Office ID
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Psn Sensitivity'
+				dataType: string
+				lineageTag: 49f03c11-4b8f-4c25-9439-5803c6eef6fe
+				summarizeBy: none
+				sourceColumn: Psn Sensitivity
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Unit ID Code'
+				dataType: string
+				displayFolder: Organization
+				lineageTag: b5c90156-fdd3-44d2-8f5d-c26491b8094f
+				summarizeBy: none
+				sourceColumn: Unit ID Code
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Basic Salary Rate'
+				dataType: double
+				displayFolder: Pay & Compensation
+				lineageTag: 1ff6a88d-3662-413c-a51b-091407f3c1a6
+				summarizeBy: sum
+				sourceColumn: Basic Salary Rate
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+			column 'Locality Pay Rate'
+				dataType: double
+				displayFolder: Pay & Compensation
+				lineageTag: 103efe01-0ce9-40e5-a81d-923dd59d8cee
+				summarizeBy: sum
+				sourceColumn: Locality Pay Rate
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+			column 'Total Pay Amt'
+				dataType: double
+				displayFolder: Pay & Compensation
+				lineageTag: 7b7a585e-b2f3-4af2-9e89-659231b19c3a
+				summarizeBy: sum
+				sourceColumn: Total Pay Amt
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+			column 'Pay Rate Determinant'
+				dataType: string
+				displayFolder: Pay & Compensation
+				lineageTag: 8f01eaac-eddf-4b5c-893d-4620e130c90a
+				summarizeBy: none
+				sourceColumn: Pay Rate Determinant
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Bargaining Unit Status'
+				dataType: string
+				displayFolder: Position
+				lineageTag: c0b6d43d-abea-4a2f-9a89-5f84d69b17af
+				summarizeBy: none
+				sourceColumn: Bargaining Unit Status
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Payroll Office ID'
+				dataType: string
+				lineageTag: c06adf7d-54d9-4abd-8c8f-454a844d0e49
+				summarizeBy: none
+				sourceColumn: Payroll Office ID
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Pay Basis'
+				dataType: string
+				displayFolder: Pay & Compensation
+				lineageTag: 0fe0064a-701b-425e-9221-2cb1946b6b64
+				summarizeBy: none
+				sourceColumn: Pay Basis
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Pay Table ID'
+				dataType: string
+				displayFolder: Pay & Compensation
+				lineageTag: e300e58c-74db-46f9-a30b-c30bf4dc2d33
+				summarizeBy: none
+				sourceColumn: Pay Table ID
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Work Schedule'
+				dataType: string
+				lineageTag: adea8202-0859-4444-9096-c2b04fc882d4
+				summarizeBy: none
+				sourceColumn: Work Schedule
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Reserve Category'
+				dataType: string
+				lineageTag: 5c271649-8441-4568-abbe-bedaedbb936c
+				summarizeBy: none
+				sourceColumn: Reserve Category
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Veterans Preference'
+				dataType: string
+				lineageTag: 4e42a342-90ef-4f86-9ed9-e933d9267f05
+				summarizeBy: none
+				sourceColumn: Veterans Preference
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Veterans Status'
+				dataType: string
+				lineageTag: 983741eb-efcc-48f0-a14f-d6751591aa4c
+				summarizeBy: none
+				sourceColumn: Veterans Status
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Veteran Status Desc'
+				dataType: string
+				lineageTag: 572bbe88-056b-4be6-be07-91b7e2c03b79
+				summarizeBy: none
+				sourceColumn: Veteran Status Desc
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Dt Appraisal  Effective'
+				dataType: string
+				lineageTag: 0345780e-c156-4bd6-83b7-45a915ed9024
+				summarizeBy: none
+				sourceColumn: Dt Appraisal  Effective
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Rating of Record'
+				dataType: string
+				lineageTag: aec96341-81a7-4d3a-b782-723f03fc918e
+				summarizeBy: none
+				sourceColumn: Rating of Record
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Appraisal Type'
+				dataType: string
+				lineageTag: 5daa4a14-b333-4fbf-8204-83082b967e8a
+				summarizeBy: none
+				sourceColumn: Appraisal Type
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Dt Assigned Current Agency'
+				dataType: string
+				lineageTag: 184e8080-c2e5-49f0-92f2-cfdb6723e3bd
+				summarizeBy: none
+				sourceColumn: Dt Assigned Current Agency
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Retirement Plan'
+				dataType: string
+				lineageTag: a9f11d90-51e2-4f4a-8b0e-1d69002c1579
+				summarizeBy: none
+				sourceColumn: Retirement Plan
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Appointment Type'
+				dataType: string
+				lineageTag: 0d68c7d4-20e1-4248-9e69-5e7238617d8d
+				summarizeBy: none
+				sourceColumn: Appointment Type
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Current Appointment Auth 1'
+				dataType: string
+				lineageTag: ddfa7b10-e9da-4111-9802-5c75b44c627e
+				summarizeBy: none
+				sourceColumn: Current Appointment Auth 1
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Current Appointment Auth 2'
+				dataType: string
+				lineageTag: a94c31f9-61c3-40e0-8b73-cf71d86d5021
+				summarizeBy: none
+				sourceColumn: Current Appointment Auth 2
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Duty Status'
+				dataType: string
+				lineageTag: 75e8524e-87a7-4d99-9aa7-6eb6d236a388
+				summarizeBy: none
+				sourceColumn: Duty Status
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Psn Seq'
+				dataType: string
+				lineageTag: 5bc915e2-f941-4888-b1e3-116d2a701967
+				summarizeBy: none
+				sourceColumn: Psn Seq
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'WGI Dt Due'
+				dataType: string
+				lineageTag: 9ea4d9ad-1fd7-435a-b000-0dca625c2f28
+				summarizeBy: none
+				sourceColumn: WGI Dt Due
+
+				annotation SummarizationSetBy = Automatic
+
+			column FUNDING_CATEGORIES
+				dataType: string
+				lineageTag: e2a62caf-ded2-4741-b91b-e633d793429c
+				summarizeBy: none
+				sourceColumn: FUNDING_CATEGORIES
+
+				annotation SummarizationSetBy = Automatic
+
+			column PAYROLL_COST_CODE
+				dataType: string
+				lineageTag: 387fde49-66d1-4b99-978a-4e58c3562764
+				summarizeBy: none
+				sourceColumn: PAYROLL_COST_CODE
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Occupation Category Code'
+				dataType: string
+				displayFolder: Position
+				lineageTag: 62a2e4f4-aadb-41b1-abc8-6f48f11f2a87
+				summarizeBy: none
+				sourceColumn: Occupation Category Code
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'FLSA Category'
+				dataType: string
+				displayFolder: Position
+				lineageTag: 7c8fa9a1-0543-43a1-99fb-ad4eb16a5255
+				summarizeBy: none
+				sourceColumn: FLSA Category
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Ethnicity and Race Full Desc'
+				dataType: string
+				displayFolder: Demographics
+				lineageTag: bd3cdffc-b86e-4e31-a805-7f63802b203f
+				summarizeBy: none
+				sourceColumn: Ethnicity and Race Full Desc
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Ethnicity and Race Full'
+				dataType: string
+				displayFolder: Demographics
+				lineageTag: 7a2d1cde-b984-454a-a9d6-74ae1faed669
+				summarizeBy: none
+				sourceColumn: Ethnicity and Race Full
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'IA Category'
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: 231ee858-ac43-480f-9ad7-0778e8113c73
+				summarizeBy: none
+				sourceColumn: IA Category
+
+				annotation SummarizationSetBy = Automatic
+
+			column IA_CATEGORY_TEXT
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: 7215c8ed-fd16-4345-acc0-7200fec57cfc
+				summarizeBy: none
+				sourceColumn: IA_CATEGORY_TEXT
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'IA Level'
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: f666e3ce-5361-4694-bd1f-2fb67783049d
+				summarizeBy: none
+				sourceColumn: IA Level
+
+				annotation SummarizationSetBy = Automatic
+
+			column IA_LEVEL_TEXT
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: a7ffc5c7-12b2-45fe-a1ba-af2fee996912
+				summarizeBy: none
+				sourceColumn: IA_LEVEL_TEXT
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'IA Duty'
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: 347e29c8-93ba-4ff2-b9bc-091e0b3f0118
+				summarizeBy: none
+				sourceColumn: IA Duty
+
+				annotation SummarizationSetBy = Automatic
+
+			column IA_DUTY_TEXT
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: 58ce57c1-8a45-4e1e-9a0c-7caf6776271a
+				summarizeBy: none
+				sourceColumn: IA_DUTY_TEXT
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Psn Specialty Code'
+				dataType: string
+				lineageTag: 697e2bd3-8128-4fb1-be1b-a8100b043590
+				summarizeBy: none
+				sourceColumn: Psn Specialty Code
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'IA Workforce Category'
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: d652194f-73ba-46cc-b7d3-a7b671b7b8d2
+				summarizeBy: none
+				sourceColumn: IA Workforce Category
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'IA Specialty Type'
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: c72a5744-4b14-42ad-9b6a-cae6784f1d4b
+				summarizeBy: none
+				sourceColumn: IA Specialty Type
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'IA Workforce Level'
+				dataType: string
+				displayFolder: IA Workforce
+				lineageTag: 3f16445b-2261-4779-b5bf-925dc3801925
+				summarizeBy: none
+				sourceColumn: IA Workforce Level
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Dt Appt Ltr Signed'
+				dataType: string
+				lineageTag: 6d5b4e9f-c34e-4691-9357-992ca1204c73
+				summarizeBy: none
+				sourceColumn: Dt Appt Ltr Signed
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Cumulative Sustainment Tng Hrs'
+				dataType: string
+				lineageTag: b052101d-d4e9-470e-a4b9-4b863616f0e0
+				summarizeBy: none
+				sourceColumn: Cumulative Sustainment Tng Hrs
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'In Sourced Indicator'
+				dataType: string
+				lineageTag: 60525ff8-552c-4bb9-8877-b6441e9211ae
+				summarizeBy: none
+				sourceColumn: In Sourced Indicator
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'In Sourced Date'
+				dataType: string
+				lineageTag: b59a504b-4ecd-492c-a792-48143a821413
+				summarizeBy: none
+				sourceColumn: In Sourced Date
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Orig In Source Seq Num'
+				dataType: string
+				lineageTag: 618c2323-e206-495c-933d-03e5eaf0c5d9
+				summarizeBy: none
+				sourceColumn: Orig In Source Seq Num
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Billet OUID'
+				dataType: string
+				lineageTag: e93b8151-5429-4aca-8518-d62c3a82c97d
+				summarizeBy: none
+				sourceColumn: Billet OUID
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Billet OUID Start Date'
+				dataType: string
+				lineageTag: 9a758a47-cae5-4322-9384-dfb5c82b0aaa
+				summarizeBy: none
+				sourceColumn: Billet OUID Start Date
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Pers Primary Work Role'
+				dataType: string
+				lineageTag: de6beeec-0de4-4e91-83dc-91547da89f57
+				summarizeBy: none
+				sourceColumn: Pers Primary Work Role
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Pers Primary Work Role Desc'
+				dataType: string
+				lineageTag: cf698602-3938-4952-8ca2-faf8a0102da6
+				summarizeBy: none
+				sourceColumn: Pers Primary Work Role Desc
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Pers Additional Work Role 1'
+				dataType: string
+				lineageTag: 94fef3c1-3f0e-4c28-b90f-7ce844cd4689
+				summarizeBy: none
+				sourceColumn: Pers Additional Work Role 1
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Pers Additional Work Role 1 Desc'
+				dataType: string
+				lineageTag: 07d21e7e-465d-4462-b8f5-0b05a33c9748
+				summarizeBy: none
+				sourceColumn: Pers Additional Work Role 1 Desc
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Pers Additional Work Role 2'
+				dataType: string
+				lineageTag: b5a5fdbf-4b16-477c-b232-50d4279025f3
+				summarizeBy: none
+				sourceColumn: Pers Additional Work Role 2
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Pers Additional Work Role 2 Desc'
+				dataType: string
+				lineageTag: be84e4b2-7f08-4108-89e1-ff0fee11ea37
+				summarizeBy: none
+				sourceColumn: Pers Additional Work Role 2 Desc
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Federal Fiscal Year (Oct-Sep). FY25 = Oct 2024 - Sep 2025
+			column 'Fiscal Year' =
+					IF(
+						MONTH('Fact_EmployeeSnapshot'[Snapshot Date]) >= 10,
+						YEAR('Fact_EmployeeSnapshot'[Snapshot Date]) + 1,
+						YEAR('Fact_EmployeeSnapshot'[Snapshot Date])
+					)
+				formatString: 0
+				displayFolder: Dates
+				lineageTag: 88888888-9999-aaaa-bbbb-cccccccccc01
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Federal Fiscal Quarter (FQ1=Oct-Dec, FQ2=Jan-Mar, FQ3=Apr-Jun, FQ4=Jul-Sep)
+			column 'Fiscal Quarter' =
+					"FQ" & SWITCH(
+						TRUE(),
+						MONTH('Fact_EmployeeSnapshot'[Snapshot Date]) IN {10, 11, 12}, 1,
+						MONTH('Fact_EmployeeSnapshot'[Snapshot Date]) IN {1, 2, 3}, 2,
+						MONTH('Fact_EmployeeSnapshot'[Snapshot Date]) IN {4, 5, 6}, 3,
+						4
+					)
+				displayFolder: Dates
+				lineageTag: 88888888-9999-aaaa-bbbb-cccccccccc02
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Fiscal Year and Quarter combined (e.g., "FY25-Q1")
+			column 'Fiscal Year-Quarter' = "FY" & RIGHT(TEXT('Fact_EmployeeSnapshot'[Fiscal Year], "00"), 2) & "-" & 'Fact_EmployeeSnapshot'[Fiscal Quarter]
+				displayFolder: Dates
+				lineageTag: 88888888-9999-aaaa-bbbb-cccccccccc03
+				summarizeBy: none
+				sortByColumn: 'Fiscal Year-Quarter Sort'
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Sort order for Fiscal Year-Quarter
+			column 'Fiscal Year-Quarter Sort' =
+					'Fact_EmployeeSnapshot'[Fiscal Year] * 10 +
+					SWITCH(
+						'Fact_EmployeeSnapshot'[Fiscal Quarter],
+						"FQ1", 1,
+						"FQ2", 2,
+						"FQ3", 3,
+						"FQ4", 4,
+						0
+					)
+				isHidden
+				formatString: 0
+				displayFolder: Dates
+				lineageTag: 88888888-9999-aaaa-bbbb-cccccccccc04
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Pay grade drill-down from Pay Plan to Grade to Step
+			hierarchy 'Grade Hierarchy'
+				lineageTag: 3d2f96f0-2338-461c-bdff-e44aa3c2acc4
+
+				level 'Pay Plan'
+					lineageTag: 3f63d409-8126-4798-803b-83fa52c79d8a
+					column: 'Pay Plan Current'
+
+				level Grade
+					lineageTag: bc3a7206-4b88-4ae1-b667-a9498a38805a
+					column: 'Grade or Level'
+
+				level Step
+					lineageTag: 5ec504e1-b75d-439d-86cb-20cd2c53e68b
+					column: 'Step or Rate'
+
+			/// Tenure drill-down from bucket to specific years of service
+			hierarchy 'Tenure Hierarchy'
+				lineageTag: b17c42c1-5a33-44a5-b846-79db6eef55e7
+
+				level 'Tenure Bucket'
+					lineageTag: 54479216-ed24-4aa9-8d3b-bae56bc6d781
+					column: 'Tenure Bucket'
+
+				level 'Years of Service'
+					lineageTag: 5fb9b808-c4eb-489f-9ca0-c5258c3bef69
+					column: 'Years of Service'
+
+			partition Fact_EmployeeSnapshot = m
+				mode: import
+				source =
+						let
+							Source = SharePoint.Files("https://dod365.sharepoint-mil.us/teams/DISA-AttritionRetentionAutomation/", [ApiVersion=15]),
+							#"Filter Folder" = Table.SelectRows(Source, each Text.EndsWith([Folder Path], "https://dod365.sharepoint-mil.us/teams/DISA-AttritionRetentionAutomation/Shared Documents/Attrition-Retention Automation/TEST/NewTest/")),
+							#"Filter Name" = Table.SelectRows(#"Filter Folder", each Text.StartsWith([Name], "DISA Empl")),
+							#"Filter Hidden" = Table.SelectRows(#"Filter Name", each [Attributes]?[Hidden]? <> true),
+							AddSnapshotDate = Table.AddColumn(#"Filter Hidden", "Snapshot Date", each let base = Text.BeforeDelimiter([Name], ".xlsx"), parts = Text.Split(base, " "), count = List.Count(parts), dayText = parts{count-3}, monthText = parts{count-2}, yearText = parts{count-1}, dayNum = try Number.From(dayText) otherwise 1, yearNum = Number.From("20" & yearText), monthNum = Date.Month(Date.FromText("1 " & monthText & " 2000")) in #date(yearNum, monthNum, dayNum), type date),
+							AddData = Table.AddColumn(AddSnapshotDate, "Data", each let currentSnapshotDate = [Snapshot Date], FileContent = try let sourceTable = Excel.Workbook([Content], null, true){[Item="Table1", Kind="Table"]}[Data], withDate = Table.AddColumn(sourceTable, "Snapshot Date", each currentSnapshotDate, type date) in withDate otherwise null in FileContent),
+							#"Keep With Data" = Table.SelectRows(AddData, each [Data] <> null),
+							CombinedData = Table.Combine(#"Keep With Data"[Data]),
+							#"Changed Type" = Table.TransformColumnTypes(CombinedData,{{"DoD ID (EDIPI)", type text}, {"Org Structure ID", type text}, {"Occ Series Current", type text}, {"Title", type text}, {"Manpower PCN", type text}, {"Dt Arrived Personnel Office", type date}, {"Dt of Birth", type date}, {"SCD Leave", type date}, {"SCD Civilian", type date}, {"SCD RIF", type date}, {"SALARY_HR", type number}, {"Basic Salary Rate", type number}, {"Locality Pay Rate", type number}, {"Total Pay Amt", type number}}),
+							AddOrgPrefix = Table.AddColumn(#"Changed Type", "ORG First 2", each try Text.Start(Text.Trim([#"Org Structure ID"]), 2) otherwise null, type text),
+							JoinOrg = Table.NestedJoin(AddOrgPrefix, {"ORG First 2"}, Dim_Organization, {"Dcode"}, "OrgMap", JoinKind.LeftOuter),
+							ExpandOrg = Table.ExpandTableColumn(JoinOrg, "OrgMap", {"Center", "Org"}, {"Center", "Org"}),
+							AddStudentInternFlag = Table.AddColumn(ExpandOrg, "IsStudentIntern", each let title = Text.Lower(Text.From(try [Title] otherwise "")), series = Text.From(try [#"Occ Series Current"] otherwise ""), pcn = Text.Upper(Text.From(try [#"Manpower PCN"] otherwise "")) in ((Text.Contains(title, "student") or Text.EndsWith(series, "99")) and not (Text.Contains(pcn, "RG") or Text.Contains(pcn, "VT"))), type logical),
+							#"Added Composite Key" = Table.AddColumn(
+							AddStudentInternFlag,
+							"CompositeKey",
+							each Text.Upper(Text.Select([#"Manpower PCN"], {"A".."Z", "a".."z", "0".."9"})) & "-" & Text.Upper(Text.Select([#"NAME-FULL"], {"A".."Z", "a".."z"}))
+						)
+						
+						
+						in
+							#"Added Composite Key"
+
+			annotation PBI_NavigationStepName = Navigation
+
+			annotation PBI_ResultType = Table
+
+		table Fact_PersonnelActions
+			lineageTag: 3b66b7bd-9e1f-42b5-b9ad-4363b382ea42
+
+			/// Effective date of the personnel action
+			column EFFECTIVE_DATE_4
+				dataType: dateTime
+				formatString: Long Date
+				displayFolder: Dates
+				lineageTag: 5d78d7f3-8b51-4f6c-b3c1-0f4cb0f4b1de
+				summarizeBy: none
+				sourceColumn: EFFECTIVE_DATE_4
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation UnderlyingDateTimeDataType = Date
+
+			/// Nature of Action code from SF-50 Block 5A - identifies the type of personnel action (e.g., 301=Transfer, 352=Reassignment, 385=Promotion)
+			column FIRST_NOA_CODE_5A
+				dataType: string
+				displayFolder: Action Codes
+				lineageTag: d419cb53-7a50-412f-9ca9-1ba717c61b93
+				summarizeBy: none
+				sourceColumn: FIRST_NOA_CODE_5A
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_OCC_CODE_9
+				dataType: string
+				isHidden
+				displayFolder: Keys
+				lineageTag: f19e78e8-0067-418d-a498-7ab3f140b2a5
+				summarizeBy: none
+				sourceColumn: FROM_OCC_CODE_9
+
+				annotation SummarizationSetBy = Automatic
+
+			column MOST_RECENT_EMPL_MANPOWER_PCN
+				dataType: string
+				lineageTag: f10c5a95-d972-4311-879e-8171baddcb0c
+				summarizeBy: none
+				sourceColumn: MOST_RECENT_EMPL_MANPOWER_PCN
+
+				annotation SummarizationSetBy = Automatic
+
+			column DT_ARR_SVCG_CCPO
+				dataType: dateTime
+				formatString: Long Date
+				displayFolder: Dates
+				lineageTag: a296e7f5-fbde-40b2-b6e5-a382cf077b89
+				summarizeBy: none
+				sourceColumn: DT_ARR_SVCG_CCPO
+
+				annotation SummarizationSetBy = Automatic
+
+				annotation UnderlyingDateTimeDataType = Date
+
+			column 'From ORG 2 Digit'
+				dataType: string
+				isHidden
+				displayFolder: Keys
+				lineageTag: 0eabffbc-968a-4824-b85f-e4912fd57e02
+				summarizeBy: none
+				sourceColumn: From ORG 2 Digit
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'To ORG 2 Digit'
+				dataType: string
+				lineageTag: a5f338ab-0c5e-4de5-81b4-c4a4791b8b3d
+				summarizeBy: none
+				sourceColumn: To ORG 2 Digit
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'From Org'
+				dataType: string
+				displayFolder: From Position
+				lineageTag: fa4a94a7-e583-469c-a270-5ab6dc81dc6e
+				summarizeBy: none
+				sourceColumn: From Org
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'To Org'
+				dataType: string
+				displayFolder: To Position
+				lineageTag: 27ac2b83-0d2a-438b-82cc-e1c8e4fc9b26
+				summarizeBy: none
+				sourceColumn: To Org
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Compare From and To Organization'
+				dataType: boolean
+				formatString: """TRUE"";""TRUE"";""FALSE"""
+				displayFolder: Flags
+				lineageTag: 40b7a63c-424b-4756-9171-5610af5321e9
+				summarizeBy: none
+				sourceColumn: Compare From and To Organization
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Compare Job Series Changes'
+				dataType: boolean
+				formatString: """TRUE"";""TRUE"";""FALSE"""
+				displayFolder: Flags
+				lineageTag: 1bed4d92-17bb-4d1d-a9db-a706b56c6e47
+				summarizeBy: none
+				sourceColumn: Compare Job Series Changes
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Categorizes the separation as Voluntary (resignation, retirement) or Non-Voluntary (termination, RIF)
+			column 'Departure Reason'
+				dataType: string
+				displayFolder: Action Codes
+				lineageTag: 86f4f8dd-efd8-4f0c-b06f-9541b09dd09a
+				summarizeBy: none
+				sourceColumn: Departure Reason
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Identifies if the action represents an Internal move (within org) or External departure (left agency)
+			column 'Internal/External Movement'
+				dataType: string
+				displayFolder: Action Codes
+				lineageTag: 818c5738-7a2f-460d-a3ba-9bddc32b4c96
+				summarizeBy: none
+				sourceColumn: Internal/External Movement
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Indicates if the employee is a student or intern - typically excluded from attrition calculations
+			column IsStudentIntern
+				dataType: boolean
+				formatString: """TRUE"";""TRUE"";""FALSE"""
+				displayFolder: Flags
+				lineageTag: 7c7b9870-bb2b-4d56-a7bf-3b2161d26968
+				summarizeBy: none
+				sourceColumn: IsStudentIntern
+
+				annotation SummarizationSetBy = Automatic
+
+			column IsNewHire
+				dataType: boolean
+				formatString: """TRUE"";""TRUE"";""FALSE"""
+				displayFolder: Flags
+				lineageTag: accd56ce-ad4a-44d3-a2a8-e97832c4fb7c
+				summarizeBy: none
+				sourceColumn: IsNewHire
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Attrition Type'
+				dataType: string
+				displayFolder: Action Codes
+				lineageTag: c876f341-d060-4a3b-98d9-7169e9cb27e1
+				summarizeBy: none
+				sourceColumn: Attrition Type
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Internal Path' = ```
+					
+					IF(
+						Fact_PersonnelActions[Internal/External Movement] = "Internal" && NOT(ISBLANK(Fact_PersonnelActions[From Org])) && NOT(ISBLANK(Fact_PersonnelActions[To Org])),
+						Fact_PersonnelActions[From Org] & " -> " & Fact_PersonnelActions[To Org],
+						BLANK()
+					)
+					
+					```
+				lineageTag: 3ddba069-d71a-4470-8b22-28a7b5e34023
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'External Path' = ```
+					
+					IF(
+						'Fact_PersonnelActions'[Internal/External Movement] = "External" && Fact_PersonnelActions[From Center] <> Fact_PersonnelActions[To Center] && Fact_PersonnelActions[Compare From and To Organization] = FALSE(),
+						'Fact_PersonnelActions'[From Center] & " -> " & 'Fact_PersonnelActions'[Destination Agency]
+					)
+					
+					```
+				lineageTag: 8c40fb4a-323d-4081-959d-e95ad1673cf7
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			column CompositeKey
+				dataType: string
+				isHidden
+				displayFolder: Keys
+				lineageTag: ddf97e62-f45f-4796-959d-af24f574ba9d
+				summarizeBy: none
+				sourceColumn: CompositeKey
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'Destination Agency'
+				dataType: string
+				lineageTag: df2a8168-c94f-4d75-adcf-c9337dae2230
+				summarizeBy: none
+				sourceColumn: Destination Agency
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'From Center' = ```
+					
+					LOOKUPVALUE(
+						'Dim_Organization'[Center],
+						'Dim_Organization'[Dcode],
+						'Fact_PersonnelActions'[From ORG 2 Digit]
+					)
+					
+					```
+				displayFolder: From Position
+				lineageTag: a795e03b-a3b0-4589-9f08-73649649a343
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'To Center' = ```
+					
+					LOOKUPVALUE(
+						'Dim_Organization'[Center],
+						'Dim_Organization'[Dcode],
+						'Fact_PersonnelActions'[To ORG 2 Digit]
+					)
+					
+					```
+				displayFolder: To Position
+				lineageTag: 570ad245-589a-4a55-80da-c22cd62f4a64
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Description of the first Nature of Action code
+			column FIRST_NOA_DESC_5B
+				dataType: string
+				displayFolder: Action Codes
+				lineageTag: 5445c296-e4df-47fc-9ee6-4935c0000bd3
+				summarizeBy: none
+				sourceColumn: FIRST_NOA_DESC_5B
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Secondary Nature of Action code from SF-50 Block 6A, used when two actions occur simultaneously
+			column SECOND_NOA_CODE_6A
+				dataType: string
+				displayFolder: Action Codes
+				lineageTag: 5cc03802-418c-4a3e-8c6c-ef9c142e5d7e
+				summarizeBy: none
+				sourceColumn: SECOND_NOA_CODE_6A
+
+				annotation SummarizationSetBy = Automatic
+
+			column SECOND_NOA_DESC_6B
+				dataType: string
+				displayFolder: Action Codes
+				lineageTag: 46892f1a-2a59-4d60-b659-41f86f13fbfb
+				summarizeBy: none
+				sourceColumn: SECOND_NOA_DESC_6B
+
+				annotation SummarizationSetBy = Automatic
+
+			column SF50_APPROVAL_DATE_49
+				dataType: string
+				displayFolder: Dates
+				lineageTag: 67965978-21ca-49e7-8bad-4e2246be6326
+				summarizeBy: none
+				sourceColumn: SF50_APPROVAL_DATE_49
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_POSITION_ORG_LINE1_14
+				dataType: string
+				lineageTag: 21f8a305-e817-4ae7-9eb8-3adf3b67bd61
+				summarizeBy: none
+				sourceColumn: FROM_POSITION_ORG_LINE1_14
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_POSITION_ORG_LINE2_14
+				dataType: string
+				lineageTag: bc521991-71c2-4385-8f99-14084b9a833b
+				summarizeBy: none
+				sourceColumn: FROM_POSITION_ORG_LINE2_14
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_POSITION_ORG_LINE3_14
+				dataType: string
+				lineageTag: 7e3d6056-6731-4bd4-b347-fd2231a516d2
+				summarizeBy: none
+				sourceColumn: FROM_POSITION_ORG_LINE3_14
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_POSITION_ORG_LINE4_14
+				dataType: string
+				lineageTag: 64f65ec6-ecd9-47c6-9a88-bc4efe773909
+				summarizeBy: none
+				sourceColumn: FROM_POSITION_ORG_LINE4_14
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_POSITION_ORG_LINE5_14
+				dataType: string
+				lineageTag: f8cd125e-5146-4493-83c2-afb8eab702e3
+				summarizeBy: none
+				sourceColumn: FROM_POSITION_ORG_LINE5_14
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_POSITION_ORG_LINE6_14
+				dataType: string
+				lineageTag: 916c40c5-2cb4-4865-a601-3438b839c637
+				summarizeBy: none
+				sourceColumn: FROM_POSITION_ORG_LINE6_14
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_POSITION_ORG_LINE1_22
+				dataType: string
+				lineageTag: 8ffddf2e-0c76-4d06-8c89-dfda2c11ec01
+				summarizeBy: none
+				sourceColumn: TO_POSITION_ORG_LINE1_22
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_POSITION_ORG_LINE2_22
+				dataType: string
+				lineageTag: 3b575ee7-d11f-4de3-84da-44d46c7de2fb
+				summarizeBy: none
+				sourceColumn: TO_POSITION_ORG_LINE2_22
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_POSITION_ORG_LINE3_22
+				dataType: string
+				lineageTag: ee5bbffc-71ff-4dc7-86bb-0b98014b5a66
+				summarizeBy: none
+				sourceColumn: TO_POSITION_ORG_LINE3_22
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_POSITION_ORG_LINE4_22
+				dataType: string
+				lineageTag: 7ffcb956-20a8-40ab-86f0-6688ca58f679
+				summarizeBy: none
+				sourceColumn: TO_POSITION_ORG_LINE4_22
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_POSITION_ORG_LINE5_22
+				dataType: string
+				lineageTag: 98f65825-cea0-4698-be99-35548b180c03
+				summarizeBy: none
+				sourceColumn: TO_POSITION_ORG_LINE5_22
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_POSITION_ORG_LINE6_22
+				dataType: string
+				lineageTag: 0c5c432a-cfb8-43f5-9162-9e5f1e0675fc
+				summarizeBy: none
+				sourceColumn: TO_POSITION_ORG_LINE6_22
+
+				annotation SummarizationSetBy = Automatic
+
+			column DUTY_STATION_DESC_39
+				dataType: string
+				lineageTag: 1bad2bd7-22f9-441f-8726-1476671049cc
+				summarizeBy: none
+				sourceColumn: DUTY_STATION_DESC_39
+
+				annotation SummarizationSetBy = Automatic
+
+			column NAME_PERS_1
+				dataType: string
+				lineageTag: 600000fb-5aef-4e6e-8e10-05edf7f1e142
+				summarizeBy: none
+				sourceColumn: NAME_PERS_1
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_PAY_PLAN_8
+				dataType: string
+				displayFolder: From Position
+				lineageTag: 56ce0586-4f28-4312-a3c7-6e3c1f110b91
+				summarizeBy: none
+				sourceColumn: FROM_PAY_PLAN_8
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_GRADE_OR_LEVEL_10
+				dataType: string
+				displayFolder: From Position
+				lineageTag: f2acd369-972f-4bee-a91d-1e985b192518
+				summarizeBy: none
+				sourceColumn: FROM_GRADE_OR_LEVEL_10
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_STEP_OR_RATE_11
+				dataType: string
+				displayFolder: From Position
+				lineageTag: 51684435-86a3-4ffa-908f-9e21a7319c19
+				summarizeBy: none
+				sourceColumn: FROM_STEP_OR_RATE_11
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_BASIC_PAY_12A
+				dataType: string
+				lineageTag: 39c2d440-353f-4e97-8c34-d03f801be15f
+				summarizeBy: none
+				sourceColumn: FROM_BASIC_PAY_12A
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_ADJ_BASIC_PAY_12C
+				dataType: string
+				lineageTag: 8bdf5d15-127f-4069-98f1-26ea3db7ccad
+				summarizeBy: none
+				sourceColumn: FROM_ADJ_BASIC_PAY_12C
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_OTHER_PAY_AMOUNT_12D
+				dataType: string
+				lineageTag: 2ae8f3d4-fb38-4d44-9298-39eaa196c945
+				summarizeBy: none
+				sourceColumn: FROM_OTHER_PAY_AMOUNT_12D
+
+				annotation SummarizationSetBy = Automatic
+
+			column FROM_PAY_BASIS_13
+				dataType: string
+				lineageTag: 025939a5-4f8f-4e27-bdb3-bbbcb6440df4
+				summarizeBy: none
+				sourceColumn: FROM_PAY_BASIS_13
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_PAY_PLAN_16
+				dataType: string
+				displayFolder: To Position
+				lineageTag: 9862a7d3-041f-48d2-8ccf-db75526e32c0
+				summarizeBy: none
+				sourceColumn: TO_PAY_PLAN_16
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_OCC_CODE_17
+				dataType: string
+				lineageTag: 596ea8f5-a22a-495d-ae4e-c0f068de0197
+				summarizeBy: none
+				sourceColumn: TO_OCC_CODE_17
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_GRADE_OR_LEVEL_18
+				dataType: string
+				displayFolder: To Position
+				lineageTag: b92d1d18-921a-433e-8e10-07d435821e94
+				summarizeBy: none
+				sourceColumn: TO_GRADE_OR_LEVEL_18
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_STEP_OR_RATE_19
+				dataType: string
+				lineageTag: b8c2f7b3-f723-4d19-a9d1-d5062d543d0a
+				summarizeBy: none
+				sourceColumn: TO_STEP_OR_RATE_19
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_OTHER_PAY_AMOUNT_20D
+				dataType: string
+				lineageTag: 4c786d55-8a2d-443d-9d04-76fd02fa8135
+				summarizeBy: none
+				sourceColumn: TO_OTHER_PAY_AMOUNT_20D
+
+				annotation SummarizationSetBy = Automatic
+
+			column TO_PAY_BASIS_21
+				dataType: string
+				lineageTag: 7fa5c4a1-b440-44fa-b639-4d7a7df7f52e
+				summarizeBy: none
+				sourceColumn: TO_PAY_BASIS_21
+
+				annotation SummarizationSetBy = Automatic
+
+			column REQUEST_NUMBER
+				dataType: string
+				lineageTag: b1e4f6ec-05d2-44b1-92ab-b1a6f5b17ad2
+				summarizeBy: none
+				sourceColumn: REQUEST_NUMBER
+
+				annotation SummarizationSetBy = Automatic
+
+			column FIRST_ACTION_LA_CODE1_5C
+				dataType: string
+				lineageTag: 3843c3c8-a100-47ac-bbde-aa03676b9c44
+				summarizeBy: none
+				sourceColumn: FIRST_ACTION_LA_CODE1_5C
+
+				annotation SummarizationSetBy = Automatic
+
+			column FIRST_ACTION_LA_DESC1_5D
+				dataType: string
+				lineageTag: c48ba738-a0a9-4e7f-bae2-5d89de96c68f
+				summarizeBy: none
+				sourceColumn: FIRST_ACTION_LA_DESC1_5D
+
+				annotation SummarizationSetBy = Automatic
+
+			column FIRST_ACTION_LA_CODE2_5E
+				dataType: string
+				lineageTag: 247fe8bf-4d8f-4320-a87d-1485f6dc372f
+				summarizeBy: none
+				sourceColumn: FIRST_ACTION_LA_CODE2_5E
+
+				annotation SummarizationSetBy = Automatic
+
+			column FIRST_ACTION_LA_DESC2_5F
+				dataType: string
+				lineageTag: b67f496e-b49e-4a98-8fa4-65d11a596d4a
+				summarizeBy: none
+				sourceColumn: FIRST_ACTION_LA_DESC2_5F
+
+				annotation SummarizationSetBy = Automatic
+
+			column MOST_RECENT_EMPL_SERIES
+				dataType: string
+				lineageTag: 9c6245a3-9c0a-4fab-bab9-573d8a29fc02
+				summarizeBy: none
+				sourceColumn: MOST_RECENT_EMPL_SERIES
+
+				annotation SummarizationSetBy = Automatic
+
+			column MOST_RECENT_EMPL_POSN_TITLE
+				dataType: string
+				lineageTag: 42b2dccf-40e4-41af-9971-7d6ddb783acf
+				summarizeBy: none
+				sourceColumn: MOST_RECENT_EMPL_POSN_TITLE
+
+				annotation SummarizationSetBy = Automatic
+
+			column EOD
+				dataType: string
+				displayFolder: Dates
+				lineageTag: 1a7afc2f-aa37-4a0e-8cbf-c997fe74ece9
+				summarizeBy: none
+				sourceColumn: EOD
+
+				annotation SummarizationSetBy = Automatic
+
+			column 'NOA Dec' = Fact_PersonnelActions[FIRST_NOA_CODE_5A] & "-" & Fact_PersonnelActions[FIRST_NOA_DESC_5B]
+				lineageTag: 78d88e97-091b-4742-aae0-4a8161124419
+				summarizeBy: none
+
+				annotation SummarizationSetBy = Automatic
+
+			/// Years of federal service at time of separation - used for Lost Tenure calculations
+			column 'Years of Service'
+				dataType: double
+				formatString: 0.0
+				displayFolder: Tenure
+				lineageTag: 77777777-8888-9999-aaaa-bbbbbbbbbb01
+				summarizeBy: sum
+				sourceColumn: Years of Service
+
+				annotation SummarizationSetBy = Automatic
+
+			partition Fact_PersonnelActions = m
+				mode: import
+				source =
+						let
+							SharePointSiteUrl = "https://dod365.sharepoint-mil.us/teams/DISA-AttritionRetentionAutomation",
+							FolderPath = "/Attrition-Retention Automation/TEST/NewTest/",
+							Source = SharePoint.Files(SharePointSiteUrl, [ApiVersion=15]),
+							FolderRows = Table.SelectRows(Source, each Text.StartsWith([Folder Path], SharePointSiteUrl & "/Shared Documents" & FolderPath)),
+							ActionFiles = Table.SelectRows(FolderRows, each Text.Contains([Name], "Actions") and ([Extension] = ".xlsx" or [Extension] = ".xls") and [Attributes]?[Hidden]? <> true),
+							AddData = Table.AddColumn(ActionFiles, "Data", each let FileContent = try Excel.Workbook([Content], null, true){[Item="Table1",Kind="Table"]}[Data] otherwise null in FileContent),
+							RemovedErrors = Table.SelectRows(AddData, each [Data] <> null),
+							Combined = Table.Combine(RemovedErrors[Data]),
+							#"Removed Duplicates" = Table.Distinct(Combined, {"NAME_PERS_1", "FIRST_NOA_CODE_5A", "EFFECTIVE_DATE_4"}),
+							#"Changed Type" = Table.TransformColumnTypes(#"Removed Duplicates",{{"EFFECTIVE_DATE_4", type date}, {"DT_ARR_SVCG_CCPO", type date}, {"FIRST_NOA_CODE_5A", type text}, {"FIRST_NOA_DESC_5B", type text}, {"FIRST_ACTION_LA_CODE2_5E", type text}, {"FROM_POSITION_ORG_LINE6_14", type text}, {"TO_POSITION_ORG_LINE6_22", type text}, {"FROM_OCC_CODE_9", type text}, {"TO_OCC_CODE_17", type text}, {"MOST_RECENT_EMPL_POSN_TITLE", type text}, {"MOST_RECENT_EMPL_MANPOWER_PCN", type text}}),
+							AddFromOrgPrefix = Table.AddColumn(#"Changed Type", "From ORG 2 Digit", each try Text.Start(Text.Trim(Text.AfterDelimiter([FROM_POSITION_ORG_LINE6_14], "-")), 2) otherwise null, type text),
+							AddToOrgPrefix = Table.AddColumn(AddFromOrgPrefix, "To ORG 2 Digit", each try Text.Start(Text.Trim(Text.AfterDelimiter([TO_POSITION_ORG_LINE6_22], "-")), 2) otherwise null, type text),
+							JoinFromOrg = Table.NestedJoin(AddToOrgPrefix, {"From ORG 2 Digit"}, Dim_Organization, {"Dcode"}, "FromMap", JoinKind.LeftOuter),
+							ExpandFromOrg = Table.ExpandTableColumn(JoinFromOrg, "FromMap", {"Org"}, {"From Org"}),
+							JoinToOrg = Table.NestedJoin(ExpandFromOrg, {"To ORG 2 Digit"}, Dim_Organization, {"Dcode"}, "ToMap", JoinKind.LeftOuter),
+							ExpandToOrg = Table.ExpandTableColumn(JoinToOrg, "ToMap", {"Org"}, {"To Org"}),
+							#"Added Compare From and To Organization" = Table.AddColumn(ExpandToOrg, "Compare From and To Organization", each if ([From Org] = null or [To Org] = null) then false else [From Org] = [To Org], type logical),
+							#"Added Compare Job Series Changes" = Table.AddColumn(#"Added Compare From and To Organization", "Compare Job Series Changes", each if [FROM_OCC_CODE_9] = null or [TO_OCC_CODE_17] = null then false else [FROM_OCC_CODE_9] = [TO_OCC_CODE_17], type logical),
+							#"Added Departure Reason" = Table.AddColumn(#"Added Compare Job Series Changes", "Departure Reason", each if [FIRST_ACTION_LA_CODE2_5E] = "ADR" then "DoD-DRP2" else if [FIRST_ACTION_LA_CODE2_5E] = "RZM" then "DoD-DRP1" else if [FIRST_ACTION_LA_CODE2_5E] = "AZM" then "VERA/VSIP" else [FIRST_NOA_DESC_5B], type text),
+							#"Added Internal/External Movement" = Table.AddColumn(#"Added Departure Reason", "Internal/External Movement", each let noa = [FIRST_NOA_CODE_5A] in if (Text.StartsWith(noa, "3") or noa = "CAO" or noa = "T352") then "External" else if (noa = "501" or noa = "570" or noa = "702" or noa = "721") then "Internal" else "Other", type text),
+							AddStudentInternFlag = Table.AddColumn(#"Added Internal/External Movement", "IsStudentIntern", each let title = Text.Lower(Text.From(try [MOST_RECENT_EMPL_POSN_TITLE] otherwise "")), series = Text.From(try [FROM_OCC_CODE_9] otherwise ""), pcn = Text.Upper(Text.From(try [MOST_RECENT_EMPL_MANPOWER_PCN] otherwise "")) in ((Text.Contains(title, "student") or Text.EndsWith(series, "99")) and not (Text.Contains(pcn, "RG") or Text.Contains(pcn, "VT"))), type logical),
+							AddNewHireFlag = Table.AddColumn(AddStudentInternFlag, "IsNewHire", each if [DT_ARR_SVCG_CCPO] <> null and [EFFECTIVE_DATE_4] <> null then Duration.Days([EFFECTIVE_DATE_4] - [DT_ARR_SVCG_CCPO]) <= 730 else false, type logical),
+							#"Added Attrition Type" = Table.AddColumn(AddNewHireFlag, "Attrition Type", each let noa = [FIRST_NOA_CODE_5A], nonVoluntaryCodes = {"330", "355", "357", "385"}, attritionCodes = {"T352", "501", "570", "702", "721", "CAO"} in if List.Contains(nonVoluntaryCodes, noa) then "Non-voluntary" else if (Text.StartsWith(noa, "3") or List.Contains(attritionCodes, noa)) then "Voluntary" else "Not Applicable", type text),
+							#"Added Composite Key" = Table.AddColumn(
+							#"Added Attrition Type",
+							"CompositeKey",
+							each Text.Upper(Text.Select([MOST_RECENT_EMPL_MANPOWER_PCN], {"A".."Z", "a".."z", "0".."9"})) & "-" & Text.Upper(Text.Select([NAME_PERS_1], {"A".."Z", "a".."z"}))
+						),
+							#"Added Custom" = Table.AddColumn(#"Added Composite Key", "Destination Agency", each if Text.Contains([Departure Reason], "Termination-Appt In ") then Text.AfterDelimiter([Departure Reason], "Termination-Appt In ")
+						else if Text.Contains([Departure Reason], "Termination-Appointment In ") then Text.AfterDelimiter([Departure Reason], "Termination-Appointment In ")
+						else [FIRST_NOA_CODE_5A] & "-" & [FIRST_NOA_DESC_5B]),
+							#"Trimmed Text" = Table.TransformColumns(#"Added Custom",{}),
+							#"Replaced Value" = Table.ReplaceValue(#"Trimmed Text","Department","Dpt",Replacer.ReplaceText,{"Destination Agency"}),
+							#"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","Central Intelligence Agency","CIA",Replacer.ReplaceText,{"Destination Agency"}),
+							#"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","National Aeronautics and Space Administration","NASA",Replacer.ReplaceText,{"Destination Agency"}),
+							#"Replaced Value3" = Table.ReplaceValue(#"Replaced Value2","Dpt of the Air Force","Air Force",Replacer.ReplaceText,{"Destination Agency"}),
+							#"Replaced Value4" = Table.ReplaceValue(#"Replaced Value3","Dpt of the Army","Army",Replacer.ReplaceText,{"Destination Agency"}),
+							#"Replaced Value5" = Table.ReplaceValue(#"Replaced Value4","Dpt of the Navy","Navy",Replacer.ReplaceText,{"Destination Agency"}),
+							#"Replaced Value6" = Table.ReplaceValue(#"Replaced Value5","-Voluntary","",Replacer.ReplaceText,{"Destination Agency"}),
+							// NEW: Add Years of Service calculation
+							#"Added Years of Service" = Table.AddColumn(#"Replaced Value6", "Years of Service", each if [DT_ARR_SVCG_CCPO] <> null and [EFFECTIVE_DATE_4] <> null then Duration.Days([EFFECTIVE_DATE_4] - [DT_ARR_SVCG_CCPO]) / 365.25 else null, type number)
+						in
+							#"Added Years of Service"
+
+			annotation PBI_NavigationStepName = Navigation
+
+			annotation PBI_ResultType = Table
+
+		table _Measures
+			lineageTag: d825094e-4396-4c09-bcc5-e6bca304e476
+
+			/// Total employee count at the beginning of the selected period
+			measure 'On-Hand Count (Start)' = ```
+					
+							VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+							RETURN CALCULATE(DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]), 'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedStartDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+					```
+				formatString: 0
+				displayFolder: Headcount
+				lineageTag: 76b595c8-455c-4efb-a249-de173fd869c5
+
+			/// Total employee count at the end of the selected period
+			measure 'On-Hand Count (End)' = ```
+					
+							VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+							RETURN CALCULATE(DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]), 'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+					```
+				formatString: 0
+				displayFolder: Headcount
+				lineageTag: f63184e6-aba9-4532-a490-af7be36977ea
+
+			/// Average of start and end period headcount
+			measure 'Average On-Hand Count' = DIVIDE([On-Hand Count (End)] + [On-Hand Count (Start)], 2)
+				formatString: 0.0
+				displayFolder: Headcount
+				lineageTag: 504c1562-f48e-4e44-ab8c-d884fdbd6839
+
+			/// Total number of employee separations during the period
+			measure 'Total Losses' = ```
+					
+							VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+							VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+							RETURN CALCULATE(COUNTROWS(Fact_PersonnelActions), Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate, Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate, Fact_PersonnelActions[IsStudentIntern] = FALSE, Fact_PersonnelActions[Compare From and To Organization] = FALSE(),
+							LEFT(Fact_PersonnelActions[FIRST_NOA_CODE_5A], 1) = "3" || Fact_PersonnelActions[FIRST_NOA_CODE_5A] IN {"501", "570", "702", "721", "T352", "CAO"})
+					```
+				formatString: 0
+				displayFolder: Losses
+				lineageTag: 13f9d733-af47-4aae-8021-e81414822f25
+
+			/// Employee separations initiated by the organization (terminations, RIFs)
+			measure 'Non-Voluntary Losses' = CALCULATE([Total Losses], Fact_PersonnelActions[Attrition Type] = "Non-voluntary")
+				formatString: 0
+				displayFolder: Losses
+				lineageTag: 8488a35b-0b5f-4a5c-9341-628ff394cb17
+
+			/// Separations of employees hired within the measurement period
+			measure 'New Hire Losses' = CALCULATE([Total Losses], Fact_PersonnelActions[IsNewHire] = TRUE)
+				formatString: 0
+				displayFolder: Losses
+				lineageTag: bc180c19-fc3b-439d-90d6-ae1ff00d293f
+
+			/// Employee separations initiated by the employee (resignations, retirements)
+			measure 'Voluntary Losses' = [Total Losses] - [Non-Voluntary Losses]
+				formatString: 0
+				displayFolder: Losses
+				lineageTag: 334f1e57-57da-49f3-82ac-e4bfdf455295
+
+			/// Count of employees remaining after losses
+			measure 'Remaining Count' = ```
+					
+							VAR vFirstDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+							VAR vLastDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+							VAR EmployeesAtStart = CALCULATETABLE(VALUES('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vFirstDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+							VAR EmployeesAtEnd = CALCULATETABLE(VALUES('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vLastDate)
+							RETURN COUNTROWS(INTERSECT(EmployeesAtStart, EmployeesAtEnd))
+					```
+				formatString: 0
+				displayFolder: Headcount
+				lineageTag: 68e70967-b94a-4554-94f4-1c5e1d45d32b
+
+			/// Remaining employees as a percentage of starting headcount - measures workforce consistency
+			measure 'Stability Index' = DIVIDE([Remaining Count], [On-Hand Count (Start)])
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: 83831431-87e5-42df-a26f-b8d4fcf49d5f
+
+				annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+			/// Total losses as a percentage of average headcount
+			measure 'Attrition Rate' = DIVIDE([Total Losses], [Average On-Hand Count])
+				formatString: 0.0%;-0.0%;0.0%
+				displayFolder: Rates
+				lineageTag: 670b9352-f174-4ed6-adda-7e143c95b107
+
+			/// Non-voluntary losses as a percentage of average headcount
+			measure 'Non-Voluntary Attrition Rate' = DIVIDE([Non-Voluntary Losses], [Average On-Hand Count])
+				formatString: 0.0%;-0.0%;0.0%
+				displayFolder: Rates
+				lineageTag: 792e2ea4-5acd-418e-8c1d-9a08801710c8
+
+			/// Voluntary losses as a percentage of average headcount
+			measure 'Voluntary Attrition Rate' = [Attrition Rate] - [Non-Voluntary Attrition Rate]
+				formatString: 0.0%;-0.0%;0.0%
+				displayFolder: Rates
+				lineageTag: 6533994e-07e4-40c5-89ce-2a40789e9c62
+
+			/// New hire losses as a percentage of new hire headcount
+			measure 'New Hire Attrition Rate' = DIVIDE([New Hire Losses], [Average On-Hand Count])
+				formatString: 0.0%;-0.0%;0.0%
+				displayFolder: Rates
+				lineageTag: 98548004-702e-45d3-8d12-7be3a14fcfd7
+
+			/// Employees who left the organization entirely
+			measure 'External Losses' = ```
+					
+							CALCULATE(
+								[Total Losses],
+								Fact_PersonnelActions[Internal/External Movement] = "External"
+							)
+					```
+				formatString: 0
+				displayFolder: Losses
+				lineageTag: c6047bce-dec0-4325-a511-b1d1107ced20
+
+			/// Employees who transferred to other parts of the organization
+			measure 'Internal Moves' = ```
+					
+							CALCULATE(
+								[Total Losses],
+								Fact_PersonnelActions[Internal/External Movement] = "Internal"
+							)
+					```
+				formatString: 0
+				displayFolder: Losses
+				lineageTag: a0a64e14-e5cb-4939-bec6-9f7f7e109ec3
+
+			/// Dynamic attrition target that varies by Center or Series. Falls back to DEFAULT if no specific target exists.
+			measure 'Attrition Target' = ```
+					VAR SelectedCenter = SELECTEDVALUE('Dim_Organization'[Center])
+					VAR SelectedSeries = SELECTEDVALUE('Dim_Series'[Occ Series Current])
+					
+					// Try to find a center-specific target first
+					VAR CenterTarget = 
+						CALCULATE(
+							MAX('Targets'[Target Value]),
+							'Targets'[Target Type] = "Attrition",
+							'Targets'[Dimension] = "Center",
+							'Targets'[Dimension Value] = SelectedCenter
+						)
+					
+					// Try series-specific target
+					VAR SeriesTarget = 
+						CALCULATE(
+							MAX('Targets'[Target Value]),
+							'Targets'[Target Type] = "Attrition",
+							'Targets'[Dimension] = "Series",
+							'Targets'[Dimension Value] = SelectedSeries
+						)
+					
+					// Default fallback
+					VAR DefaultTarget = 
+						CALCULATE(
+							MAX('Targets'[Target Value]),
+							'Targets'[Target Type] = "Attrition",
+							'Targets'[Dimension Value] = "DEFAULT"
+						)
+					
+					RETURN
+						// Priority: Center > Series > Default
+						COALESCE(CenterTarget, SeriesTarget, DefaultTarget, 0.12)
+					```
+				formatString: 0.0%
+				displayFolder: Targets
+				lineageTag: 082b5f62-b7a4-4738-8ae4-2ddc0b662e45
+
+				annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+			/// Difference between actual attrition and target
+			measure 'Attrition Variance' = [Attrition Rate] - [Attrition Target]
+				formatString: 0.0%;-0.0%;0.0%
+				displayFolder: Targets
+				lineageTag: 6fd56f37-03b3-419c-8c1e-4bfce44d1fa2
+
+			/// Dynamic retention target that varies by Center or Series. Falls back to DEFAULT if no specific target exists.
+			measure 'Retention Target' = ```
+					VAR SelectedCenter = SELECTEDVALUE('Dim_Organization'[Center])
+					
+					// Try to find a center-specific target first
+					VAR CenterTarget = 
+						CALCULATE(
+							MAX('Targets'[Target Value]),
+							'Targets'[Target Type] = "Retention",
+							'Targets'[Dimension] = "Center",
+							'Targets'[Dimension Value] = SelectedCenter
+						)
+					
+					// Default fallback
+					VAR DefaultTarget = 
+						CALCULATE(
+							MAX('Targets'[Target Value]),
+							'Targets'[Target Type] = "Retention",
+							'Targets'[Dimension Value] = "DEFAULT"
+						)
+					
+					RETURN
+						COALESCE(CenterTarget, DefaultTarget, 0.88)
+					```
+				formatString: 0.0%
+				displayFolder: Targets
+				lineageTag: 6404c861-b067-419e-8d56-ce8241495780
+
+				annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+			/// Difference between actual retention and target
+			measure 'Retention Variance' = [Stability Index] - [Retention Target]
+				formatString: 0.0%;-0.0%;0.0%
+				displayFolder: Targets
+				lineageTag: 8df105f2-3e4b-49ef-be1f-6b5913476101
+
+			/// Total number of new employees added during the period
+			measure 'Total Gains' = ```
+					
+							VAR NetChange = [On-Hand Count (End)] - [On-Hand Count (Start)]
+							VAR Gains = NetChange + [Total Losses]
+							RETURN
+								Gains
+					```
+				formatString: 0
+				displayFolder: Gains
+				lineageTag: b9a4c442-f24c-4f42-8df7-b2f664326e6f
+
+			/// Rate of internal transfers and movements (Internal Moves ÷ Average On-Hand)
+			measure 'Internal Attrition' = DIVIDE([Internal Moves],[Total Losses])
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: 5a5d7ca7-8b6d-4211-b922-780ab7cd5d79
+
+			/// Dynamic report title showing selected date range
+			measure 'Dynamic Title - Date Range' = ```
+					
+							VAR StartDate = FORMAT(SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date]), "DD MMM YYYY")
+							VAR EndDate = FORMAT(SELECTEDVALUE('SnapshotDate_End'[Snapshot Date]), "DD MMM YYYY")
+							VAR TitleText = "DISA Work Force Analytics: " & StartDate & " to " & EndDate
+							RETURN
+								TitleText
+					
+					
+					```
+				displayFolder: Display
+				lineageTag: 51773916-3043-460e-99ee-c035998be70b
+
+			/// Remaining employees as a percentage of average headcount
+			measure 'Retention Rate' = DIVIDE([Remaining Count],[Average On-Hand Count])
+				formatString: 0.0%;-0.0%;0.0%
+				displayFolder: Rates
+				lineageTag: e3307371-a02d-4e20-8c49-402f03850133
+
+			/// Rate of employees leaving to external organizations (External Losses ÷ Average On-Hand)
+			measure 'External Attrition' = DIVIDE([External Losses],[Total Losses])
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: cba541e8-62d0-42a2-8691-24151484f678
+
+			/// Net workforce change: Total Gains minus Total Losses. Positive = growth, Negative = decline.
+			measure 'Net Change' = [Total Gains] - [Total Losses]
+				formatString: 0
+				displayFolder: Headcount
+				lineageTag: 912c0053-88eb-46fe-b625-3155b2825c33
+
+			/// Count of employees promoted during the period
+			measure Promotions =
+					VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							COUNTROWS(Fact_PersonnelActions),
+							Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate,
+							Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate,
+							Fact_PersonnelActions[IsStudentIntern] = FALSE,
+							Fact_PersonnelActions[FIRST_NOA_CODE_5A] IN {"702", "703", "713", "890"}
+						)
+				formatString: 0
+				displayFolder: Gains
+				lineageTag: c99c95c8-af86-4bab-b582-b2701c301c90
+
+			/// Promotions as a percentage of average headcount
+			measure 'Promotion Rate' = DIVIDE([Promotions], [Average On-Hand Count])
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: 642c711c-7143-4af1-8909-810da757430b
+
+			/// Attrition rate annualized (quarterly rate × 4)
+			measure 'Annualized Attrition Rate' = [Attrition Rate] * 4
+				formatString: 0.0%
+				displayFolder: Executive KPIs
+				lineageTag: 3dc132cd-48df-4c75-8816-b9c3cc44953d
+
+			/// Year-over-year workforce headcount change as a percentage
+			measure 'YoY Workforce Change %' = ```
+					VAR CurrentOnHand = [On-Hand Count (End)]
+					VAR CurrentDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					VAR PriorYearDate = EDATE(CurrentDate, -12)
+					VAR PriorYearOnHand = 
+						CALCULATE(
+							DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+							'Fact_EmployeeSnapshot'[Snapshot Date] = PriorYearDate,
+							'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+						)
+					RETURN
+						DIVIDE(CurrentOnHand - PriorYearOnHand, PriorYearOnHand)
+					```
+				formatString: +0.0%;-0.0%;0.0%
+				displayFolder: Executive KPIs
+				lineageTag: 4f812dde-c769-4291-b656-b3755a6da71b
+
+			/// Average age of the workforce
+			measure 'Average Age' =
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							AVERAGE('Fact_EmployeeSnapshot'[Age]),
+							'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+							'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+						)
+				formatString: 0.0
+				displayFolder: Executive KPIs
+				lineageTag: 421b90bd-bc95-4ceb-a387-7c71015e321f
+
+			/// Count of employees eligible for retirement (Age >= 55 and Years of Service >= 20)
+			measure 'Retirement Eligible' =
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+							'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+							'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE,
+							(
+								('Fact_EmployeeSnapshot'[Age] >= 55 && 'Fact_EmployeeSnapshot'[Years of Service] >= 20) ||
+								('Fact_EmployeeSnapshot'[Age] >= 60 && 'Fact_EmployeeSnapshot'[Years of Service] >= 10)
+							)
+						)
+				formatString: 0
+				displayFolder: Executive KPIs\Retention Risk
+				lineageTag: 5e62e516-2519-4267-8e9f-1eaf8bed0cb4
+
+			/// Percentage of workforce eligible for retirement
+			measure 'Retirement Eligible %' = DIVIDE([Retirement Eligible], [On-Hand Count (End)])
+				formatString: 0.0%
+				displayFolder: Executive KPIs\Retention Risk
+				lineageTag: 40dfce5d-74bc-4267-b03c-72d355f63800
+
+			/// Total loss of institutional knowledge based on tenure of departing employees
+			measure 'Lost Tenure (Years)' =
+					VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							SUM('Fact_PersonnelActions'[Years of Service]),
+							Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate,
+							Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate,
+							LEFT(Fact_PersonnelActions[FIRST_NOA_CODE_5A], 1) = "3"
+						)
+				formatString: #,##0
+				displayFolder: Executive KPIs\Retention Risk
+				lineageTag: b278f2ca-b0ad-40e8-8f0e-cc07c9eb43a5
+
+			/// Average tenure of employees who left during the period
+			measure 'Avg Tenure of Losses' = DIVIDE([Lost Tenure (Years)], [Total Losses])
+				formatString: 0.0
+				displayFolder: Executive KPIs\Retention Risk
+				lineageTag: a74dbae6-2f1f-40c8-9420-68ee0a940197
+
+			/// Returns color code for attrition status: Green (<10%), Yellow (10-15%), Red (>15%)
+			measure 'Attrition Status Color' =
+					VAR AttritionValue = [Annualized Attrition Rate]
+					RETURN
+						SWITCH(
+							TRUE(),
+							AttritionValue <= 0.10, "#2E7D32",
+							AttritionValue <= 0.15, "#F9A825",
+							"#C62828"
+						)
+				displayFolder: Conditional Formatting
+				lineageTag: d6335221-f220-4d2c-955b-94975f64a421
+
+			/// Returns icon/text for attrition status
+			measure 'Attrition Status' =
+					VAR AttritionValue = [Annualized Attrition Rate]
+					RETURN
+						SWITCH(
+							TRUE(),
+							AttritionValue <= 0.10, "✅ Good",
+							AttritionValue <= 0.15, "⚠️ Watch",
+							"🚨 High"
+						)
+				displayFolder: Conditional Formatting
+				lineageTag: c4453665-2b55-483f-ada4-4022c8c0563d
+
+			/// Returns color for retention risk: Green (<5%), Yellow (5-10%), Red (>10%)
+			measure 'Retirement Risk Color' =
+					VAR RetirementPct = [Retirement Eligible %]
+					RETURN
+						SWITCH(
+							TRUE(),
+							RetirementPct <= 0.05, "#2E7D32",
+							RetirementPct <= 0.10, "#F9A825",
+							"#C62828"
+						)
+				displayFolder: Conditional Formatting
+				lineageTag: 405ef2bc-669b-49a1-8db9-435b27ab27c4
+
+			/// Returns status text for target variance
+			measure 'Target Status' =
+					VAR Variances = [Attrition Rate vs Target]
+					RETURN
+						SWITCH(
+							TRUE(),
+							ISBLANK(Variances), "No Target",
+							Variances <= 0, "✅ On Target",
+							Variances <= 0.02, "⚠️ Near Target",
+							"🚨 Above Target"
+						)
+				displayFolder: Conditional Formatting
+				lineageTag: 794a09e5-818c-4705-b678-a1077501c7a1
+
+			/// Retention rate calculated at the organizational level
+			measure 'Organizational Retention Rate' = ```
+					
+							DIVIDE([Org Retention Numerator], [On-Hand Count (Start)])
+					```
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: 8d4037eb-a322-4786-88c2-e638e354944d
+
+			/// Retention rate calculated by job series
+			measure 'Job Series Retention Rate' = ```
+					
+							DIVIDE([Series Retention Numerator], [On-Hand Count (Start)])
+					```
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: 6828f9c6-4edc-49ae-86a1-b8c96923c0e9
+
+			/// Numerator used for organizational retention calculations
+			measure 'Org Retention Numerator' = ```
+					
+							VAR vFirstDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+							VAR vLastDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+							VAR StartSnapshot = CALCULATETABLE(SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[DoD ID (EDIPI)], 'Fact_EmployeeSnapshot'[Org]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vFirstDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+							VAR EndSnapshot = CALCULATETABLE(SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[DoD ID (EDIPI)], 'Fact_EmployeeSnapshot'[Org]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vLastDate)
+							RETURN COUNTROWS(INTERSECT(StartSnapshot, EndSnapshot))
+					```
+				formatString: 0
+				isHidden
+				displayFolder: Supporting
+				lineageTag: d0a857f2-bcf1-4e00-ae38-339b824be25f
+
+			/// Numerator used for job series retention calculations
+			measure 'Series Retention Numerator' = ```
+					
+							VAR vFirstDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+							VAR vLastDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+							VAR StartSnapshot = CALCULATETABLE(SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[DoD ID (EDIPI)], 'Fact_EmployeeSnapshot'[Occ Series Current]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vFirstDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+							VAR EndSnapshot = CALCULATETABLE(SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[DoD ID (EDIPI)], 'Fact_EmployeeSnapshot'[Occ Series Current]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vLastDate)
+							RETURN COUNTROWS(INTERSECT(StartSnapshot, EndSnapshot))
+					```
+				formatString: 0
+				isHidden
+				displayFolder: Supporting
+				lineageTag: bb535d56-226d-4024-9404-93df22bdcb3d
+
+			/// Count of new hires at the start of the period
+			measure 'On-Hand Start (New Hires)' = ```
+					
+							CALCULATE(
+								[On-Hand Count (Start)],
+								'Dim_Employee'[Tenure Bucket] = "0-2 years"
+							)
+					```
+				formatString: 0
+				isHidden
+				displayFolder: Headcount
+				lineageTag: 14ce6216-841c-4ea4-a758-65daa462f8ec
+
+			/// Count of employees in probationary status (less than 1 year of service)
+			measure 'Probationary On-Hand' =
+					VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+							'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedStartDate,
+							'Fact_EmployeeSnapshot'[Tenure] = "1",
+							'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+						)
+				formatString: 0
+				displayFolder: Headcount
+				lineageTag: 293c80eb-fa09-4488-9443-7c6fc539cb48
+
+			/// Count of probationary employee terminations
+			measure 'Probationary Terminations' =
+					VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							COUNTROWS(Fact_PersonnelActions),
+							Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate,
+							Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate,
+							Fact_PersonnelActions[IsStudentIntern] = FALSE,
+							LEFT(Fact_PersonnelActions[FIRST_NOA_CODE_5A], 1) = "3"
+						)
+				formatString: 0
+				displayFolder: Losses
+				lineageTag: 75d842f3-1487-48c0-8a58-9488e78d7764
+
+			/// Probationary terminations as a percentage of probationary headcount
+			measure 'Probationary Term Rate (of Probs)' = DIVIDE([Probationary Terminations], [Probationary On-Hand])
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: 18f238bb-34f8-415a-84bd-63a07ded22ce
+
+			/// Probationary terminations as a percentage of total headcount
+			measure 'Probationary Term Rate (of Total)' = DIVIDE([Probationary Terminations], [On-Hand Count (Start)])
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: dbf69ae0-3b31-4fe6-aebf-01f4e7c24a71
+
+			/// Internal transfers INTO an organization (gains from other orgs)
+			measure 'Internal Gains' =
+					VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							COUNTROWS(Fact_PersonnelActions),
+							Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate,
+							Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate,
+							Fact_PersonnelActions[IsStudentIntern] = FALSE,
+							Fact_PersonnelActions[Compare From and To Organization] = TRUE
+						)
+				formatString: 0
+				displayFolder: Gains
+				lineageTag: bb2453ff-00ca-432e-ad53-f4f6139e929b
+
+			/// Average years of service for current workforce
+			measure 'Average Tenure (Years)' =
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							AVERAGE('Fact_EmployeeSnapshot'[Years of Service]),
+							'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+							'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+						)
+				formatString: 0.0
+				displayFolder: Workforce Overview
+				lineageTag: fd1eead5-21c6-443f-9113-ea989e46e09f
+
+			/// Non-voluntary losses as a percentage of total losses
+			measure 'Non-Voluntary Loss %' = DIVIDE([Non-Voluntary Losses], [Total Losses])
+				formatString: 0.0%
+				displayFolder: Rates
+				lineageTag: e6b6c10b-0fcb-4ec8-b762-c5926980b667
+
+			/// Employees within 5 years of retirement eligibility (succession planning)
+			measure 'Near Retirement (5yr)' =
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+							'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+							'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE,
+							'Fact_EmployeeSnapshot'[Age] >= 50,
+							'Fact_EmployeeSnapshot'[Years of Service] >= 15
+						)
+				formatString: 0
+				displayFolder: Retention Risk
+				lineageTag: 7c229263-db75-4ed5-9605-c4d70e76592d
+
+			/// Employees with less than 2 years of service (high turnover risk)
+			measure 'Early Career Count' =
+					VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+					RETURN
+						CALCULATE(
+							DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+							'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+							'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE,
+							'Fact_EmployeeSnapshot'[Years of Service] < 2
+						)
+				formatString: 0
+				displayFolder: Retention Risk
+				lineageTag: e088f57b-9308-47c7-9505-b6d98385acb0
+
+			/// Percentage of workforce with less than 2 years of service
+			measure 'Early Career %' = DIVIDE([Early Career Count], [On-Hand Count (End)])
+				formatString: 0.0%
+				displayFolder: Retention Risk
+				lineageTag: 3f422e58-b85b-4a0e-84e8-99b804d0d811
+
+			/// Total current workforce headcount at the end of the selected period
+			measure 'Total Workforce' = [On-Hand Count (End)]
+				formatString: #,##0
+				displayFolder: Executive KPIs
+				lineageTag: 34d8411c-6b7b-40d2-b31d-ce4fc58d91bc
+
+			/// Percentage of attrition that was voluntary (employee-initiated)
+			measure 'Voluntary Attrition %' = DIVIDE([Voluntary Losses], [Total Losses])
+				formatString: 0.0%
+				displayFolder: Executive KPIs
+				lineageTag: d578d316-425b-4b6c-8a0b-e868fc1b35a6
+
+			/// Count of employees nearing retirement eligibility (Age 50-54 with 15+ years)
+			measure 'Near Retirement' =
+					CALCULATE(
+						DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+						'Fact_EmployeeSnapshot'[Snapshot Date] = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date]),
+						'Fact_EmployeeSnapshot'[Age] >= 50,
+						'Fact_EmployeeSnapshot'[Age] < 55,
+						'Fact_EmployeeSnapshot'[Years of Service] >= 15,
+						'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+					)
+				formatString: #,##0
+				displayFolder: Executive KPIs\Retention Risk
+				lineageTag: a322c843-09f6-432d-bc95-72150190a634
+
+			/// Count of organizations with attrition rate above 20%
+			measure 'High Turnover Orgs' =
+					COUNTROWS(
+						FILTER(
+							SUMMARIZE(
+								'Dim_Organization',
+								'Dim_Organization'[Org],
+								"OrgAttrition", [Attrition Rate]
+							),
+							[OrgAttrition] > 0.20
+						)
+					)
+				formatString: #,##0
+				displayFolder: Executive KPIs\Retention Risk
+				lineageTag: c5b5dd2b-46cf-418c-92c6-222a6bd0e971
+
+			/// Returns background color for YoY change: Green (positive), Red (negative)
+			measure 'YoY Change Color' =
+					VAR ChangeValue = [YoY Workforce Change %]
+					RETURN
+						IF(ChangeValue >= 0, "#E8F5E9", "#FFEBEE")
+				displayFolder: Conditional Formatting
+				lineageTag: 9c025688-1ded-41af-8a62-3740866a1cb2
+
+			/// Returns arrow indicator for trend direction
+			measure 'Net Change Indicator' =
+					VAR ChangeValue = [Net Change]
+					RETURN
+						SWITCH(
+							TRUE(),
+							ChangeValue > 0, "↑ +" & FORMAT(ChangeValue, "#,##0"),
+							ChangeValue < 0, "↓ " & FORMAT(ChangeValue, "#,##0"),
+							"↔️ 0"
+						)
+				displayFolder: Conditional Formatting
+				lineageTag: 74e0896c-2931-4f5d-a028-0bec3fa30472
+
+			/// Employee detail for drill-through: Name, Org, Series, Tenure
+			measure 'Top 10 Senior Employees' =
+					VAR SelectedOrg = SELECTEDVALUE('Dim_Organization'[Org])
+					VAR SelectedSeries = SELECTEDVALUE('Dim_Series'[Occ Series Current])
+					RETURN
+						CONCATENATEX(
+							TOPN(
+								10,
+								FILTER(
+									'Fact_EmployeeSnapshot',
+									'Fact_EmployeeSnapshot'[Org First 2] = LEFT(SelectedOrg, 2)
+								),
+								'Fact_EmployeeSnapshot'[Years of Service], DESC
+							),
+							'Fact_EmployeeSnapshot'[Title] & " (" & FORMAT('Fact_EmployeeSnapshot'[Years of Service], "0.0") & " yrs)",
+							", "
+						)
+				displayFolder: Drill-Through
+				lineageTag: 123a9770-4e50-4e38-86e2-6cba6377c28f
+
+			/// Summary text for drill-through page header
+			measure 'Drill-Through Context' =
+					VAR SelectedOrg = SELECTEDVALUE('Dim_Organization'[Org], "All Organizations")
+					VAR SelectedCenter = SELECTEDVALUE('Dim_Organization'[Center], "All Centers")
+					VAR SelectedSeries = SELECTEDVALUE('Dim_Series'[Occ Series Current], "All Series")
+					RETURN
+						"Showing details for: " & SelectedCenter & " / " & SelectedOrg & " / " & SelectedSeries
+				displayFolder: Drill-Through
+				lineageTag: 51c75356-8893-450d-b15c-410994abb7d0
+
+			/// Compact summary showing key metrics for the selected context
+			measure 'Quick Stats Summary' = ```
+					"Headcount: " & FORMAT([On-Hand Count (End)], "#,##0") & 
+					" | Losses: " & FORMAT([Total Losses], "#,##0") & 
+					" | Attrition: " & FORMAT([Attrition Rate], "0.0%")
+					```
+				displayFolder: Drill-Through
+				lineageTag: 56d9fa2a-c318-4c46-a4a4-019316ebe6e7
+
+			/// Returns status icon based on attrition variance from target
+			measure 'Target Performance' =
+					VAR Variances = [Attrition Variance]
+					RETURN
+						SWITCH(
+							TRUE(),
+							ISBLANK(Variances), "⚪ No Data",
+							Variances <= -0.02, "✅ Well Below Target",
+							Variances <= 0, "✅ On Target",
+							Variances <= 0.02, "⚠️ Slightly Above",
+							"🚨 Above Target"
+						)
+				displayFolder: Targets
+				lineageTag: f1c33f29-ded9-4dbc-a2e6-37f5badc4878
+
+			column Placeholder
+				dataType: string
+				isHidden
+				lineageTag: ccf9fbf7-daa6-46f5-a3f2-ccc9833ab03f
+				summarizeBy: none
+				sourceColumn: Placeholder
+
+				changedProperty = IsHidden
+
+				annotation SummarizationSetBy = Automatic
+
+			partition _Measures = m
+				mode: import
+				source =
+						let
+							Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Placeholder = _t])
+						in
+							Source
+
+			annotation PBI_ResultType = Table
+
+			annotation PBI_NavigationStepName = Navigation
+
+		table SnapshotDate_Start
+			lineageTag: 4a44d1ef-49bb-4fd6-9c47-8078c24c3001
+
+			column 'Snapshot Date'
+				lineageTag: 3bf10203-f840-4f0d-81f5-5ba54ee6ecfd
+				isNameInferred
+				sourceColumn: Fact_EmployeeSnapshot[Snapshot Date]
+				columnOrigin: Fact_EmployeeSnapshot.'Snapshot Date'
+
+			partition SnapshotDate_Start = calculated
+				mode: import
+				source = DISTINCT('Fact_EmployeeSnapshot'[Snapshot Date])
+
+			annotation PBI_Id = "6c16cb00de024b2dbc026cbf4a84d32b"
+
+		table SnapshotDate_End
+			lineageTag: e12fe8c2-4e57-44ec-8f41-e82accff667f
+
+			column 'Snapshot Date'
+				lineageTag: ec85a779-48ce-4f0c-9db4-4d5a846423a9
+				isNameInferred
+				sourceColumn: Fact_EmployeeSnapshot[Snapshot Date]
+				columnOrigin: Fact_EmployeeSnapshot.'Snapshot Date'
+
+			partition SnapshotDate_End = calculated
+				mode: import
+				source = DISTINCT('Fact_EmployeeSnapshot'[Snapshot Date])
+
+			annotation PBI_Id = "c4e63471310442b89b154ba5a2772bfc"
+
+		table Dim_Employee
+			lineageTag: 317d99ea-f8dd-4e17-9816-2867b19cb6ae
+
+			column 'Tenure Bucket'
+				lineageTag: a50ba2e7-cf3f-4feb-8a06-9500d9e2e5a7
+				summarizeBy: none
+				sourceColumn: [Tenure Bucket]
+				sortByColumn: 'Tenure Bucket Sort Order'
+
+			column 'Tenure Bucket Sort Order'
+				formatString: 0
+				lineageTag: 643bd78f-8b20-48f6-9743-c45203b8d152
+				summarizeBy: sum
+				sourceColumn: [Tenure Bucket Sort Order]
+
+			column 'Age Group'
+				lineageTag: 941d22db-715a-45c9-b341-06bfc0ddf16a
+				summarizeBy: none
+				sourceColumn: [Age Group]
+
+			column CompositeKey
+				lineageTag: de925962-2d1f-49c9-ba38-c7d4d75d3742
+				summarizeBy: none
+				sourceColumn: [CompositeKey]
+
+			column Sex
+				lineageTag: 2432e43a-ac62-466e-b958-a5c0d0363446
+				summarizeBy: none
+				sourceColumn: [Sex]
+
+			column 'Occ Series Current'
+				lineageTag: 6735daed-4ea4-4e1b-8449-b6f5efc0041d
+				summarizeBy: none
+				sourceColumn: [Occ Series Current]
+
+			column Title
+				lineageTag: bbd16557-5bcb-49a1-bae7-30f8aafe355e
+				summarizeBy: none
+				sourceColumn: [Title]
+
+			partition Dim_Employee = calculated
+				mode: import
+				source =
+						VAR AllEmployeeKeys = SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[CompositeKey])
+						VAR EmployeeAttributes =
+							ADDCOLUMNS(
+								AllEmployeeKeys,
+								"Tenure Bucket", CALCULATE(SELECTEDVALUE('Fact_EmployeeSnapshot'[Tenure Bucket], "Unknown")),
+								"Tenure Bucket Sort Order", CALCULATE(SELECTEDVALUE('Fact_EmployeeSnapshot'[Tenure Bucket Sort Order], 99)),
+								"Age Group", CALCULATE(SELECTEDVALUE('Fact_EmployeeSnapshot'[Age Group], "Unknown")),
+								"Sex", CALCULATE(SELECTEDVALUE('Fact_EmployeeSnapshot'[Sex], "U")),
+								"Occ Series Current", CALCULATE(SELECTEDVALUE('Fact_EmployeeSnapshot'[Occ Series Current], "Unknown")),
+								"Title", CALCULATE(SELECTEDVALUE('Fact_EmployeeSnapshot'[Title], "Unknown"))
+							)
+						RETURN
+							SELECTCOLUMNS(
+								EmployeeAttributes,
+								"CompositeKey", [CompositeKey],
+								"Tenure Bucket", [Tenure Bucket],
+								"Tenure Bucket Sort Order", [Tenure Bucket Sort Order],
+								"Age Group", [Age Group],
+								"Sex", [Sex],
+								"Occ Series Current", [Occ Series Current],
+								"Title", [Title]
+							)
+
+			annotation PBI_Id = "a642685569f842e289898170aa1c30e7"
+
+		/// Field parameter for dynamically switching analysis dimension
+		table 'Dimension Selector'
+			lineageTag: 82a204d7-bc17-4824-9182-71f9fc8054bb
+
+			column Value1
+				lineageTag: 6f6cea10-085e-48f5-a7fb-fa74ebdb661e
+				isNameInferred
+				sourceColumn: [Value1]
+
+			column Value2
+				lineageTag: 2f9488b8-2d1c-4f84-8f1f-f21b759eb846
+				isNameInferred
+				sourceColumn: [Value2]
+
+			column Value3
+				lineageTag: e9df5d2f-c351-45f2-8384-dedd95109b62
+				isNameInferred
+				sourceColumn: [Value3]
+
+			/// FIX #4: Changed 'Dim_Series'[Series] to 'Dim_Series'[Occ Series Current]
+			partition 'Dimension Selector' = calculated
+				mode: import
+				source =
+						{
+							("Organization", NAMEOF('Dim_Organization'[Org]), 0),
+							("Center", NAMEOF('Dim_Organization'[Center]), 1),
+							("Job Series", NAMEOF('Dim_Series'[Occ Series Current]), 2),
+							("Pay Plan", NAMEOF('Fact_EmployeeSnapshot'[Pay Plan Current]), 3),
+							("Grade", NAMEOF('Fact_EmployeeSnapshot'[Grade or Level]), 4),
+							("Tenure Bucket", NAMEOF('Fact_EmployeeSnapshot'[Tenure Bucket]), 5),
+							("Age Group", NAMEOF('Fact_EmployeeSnapshot'[Age Group]), 6)
+						}
+
+			annotation PBI_Id = dimension-selector-field-parameter
+
+		table 'Metric Selector'
+			lineageTag: 88a6a206-7f69-4aa3-962f-582c148c6916
+
+			column Value1
+				lineageTag: c2d2bf2b-4b21-445c-9760-75c27df8305a
+				isNameInferred
+				sourceColumn: [Value1]
+
+			column Value2
+				lineageTag: 54022b13-e2b6-4d17-868b-17638a26cccb
+				isNameInferred
+				sourceColumn: [Value2]
+
+			column Value3
+				lineageTag: 2abf4cf4-08ca-4b34-9ba0-9034af38786f
+				isNameInferred
+				sourceColumn: [Value3]
+
+			partition 'Metric Selector' = calculated
+				mode: import
+				source =
+						{
+							("Attrition Rate", NAMEOF('_Measures'[Attrition Rate]), 0),
+							("Total Losses", NAMEOF('_Measures'[Total Losses]), 1),
+							("Total Gains", NAMEOF('_Measures'[Total Gains]), 2),
+							("Net Change", NAMEOF('_Measures'[Net Change]), 3),
+							("Retention Rate", NAMEOF('_Measures'[Retention Rate]), 4),
+							("Promotion Rate", NAMEOF('_Measures'[Promotion Rate]), 5),
+							("Voluntary Attrition %", NAMEOF('_Measures'[Voluntary Attrition %]), 6)
+						}
+
+			annotation PBI_Id = metric-selector-field-parameter
+
+	/// Time comparison calculations for quarterly snapshot data. Apply to any measure to see current, prior quarter, prior year, or changes.
+	table 'Time Comparison'
+		lineageTag: 11111111-2222-3333-4444-555555555501
+
+		calculationGroup
+			precedence: 10
+
+			/// Shows current period values as selected
+			calculationItem 'Current Period' = SELECTEDMEASURE()
+				ordinal: 0
+
+			/// Shows prior quarter values for comparison
+			calculationItem 'Prior Quarter' =
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR PriorQuarterDate = EDATE(CurrentDate, -3)
+					RETURN
+						CALCULATE(
+							SELECTEDMEASURE(),
+							'SnapshotDate_End'[Snapshot Date] = PriorQuarterDate
+						)
+				ordinal: 1
+
+			/// Shows same quarter from prior year
+			calculationItem 'Prior Year' =
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR PriorYearDate = EDATE(CurrentDate, -12)
+					RETURN
+						CALCULATE(
+							SELECTEDMEASURE(),
+							'SnapshotDate_End'[Snapshot Date] = PriorYearDate
+						)
+				ordinal: 2
+
+			/// Quarter-over-quarter change (current minus prior)
+			calculationItem 'QoQ Change' =
+					VAR CurrentValue = SELECTEDMEASURE()
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR PriorQuarterDate = EDATE(CurrentDate, -3)
+					VAR PriorValue = CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorQuarterDate
+					)
+					RETURN
+						CurrentValue - PriorValue
+				ordinal: 3
+
+			/// Year-over-year change (current minus prior year)
+			calculationItem 'YoY Change' =
+					VAR CurrentValue = SELECTEDMEASURE()
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR PriorYearDate = EDATE(CurrentDate, -12)
+					VAR PriorValue = CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorYearDate
+					)
+					RETURN
+						CurrentValue - PriorValue
+				ordinal: 4
+
+			/// Quarter-over-quarter percentage change
+			calculationItem 'QoQ Change %' =
+					VAR CurrentValue = SELECTEDMEASURE()
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR PriorQuarterDate = EDATE(CurrentDate, -3)
+					VAR PriorValue = CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorQuarterDate
+					)
+					RETURN
+						DIVIDE(CurrentValue - PriorValue, PriorValue)
+				formatString: +0.0%;-0.0%;0.0%
+				ordinal: 5
+
+			/// Year-over-year percentage change
+			calculationItem 'YoY Change %' =
+					VAR CurrentValue = SELECTEDMEASURE()
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR PriorYearDate = EDATE(CurrentDate, -12)
+					VAR PriorValue = CALCULATE(
+						SELECTEDMEASURE(),
+						'SnapshotDate_End'[Snapshot Date] = PriorYearDate
+					)
+					RETURN
+						DIVIDE(CurrentValue - PriorValue, PriorValue)
+				formatString: +0.0%;-0.0%;0.0%
+				ordinal: 6
+
+		column 'Time Comparison'
+			dataType: string
+			lineageTag: 11111111-2222-3333-4444-555555555502
+			summarizeBy: none
+			sourceColumn: Name
+			sortByColumn: Ordinal
+
+		column Ordinal
+			dataType: int64
+			isHidden
+			lineageTag: 11111111-2222-3333-4444-555555555503
+			summarizeBy: sum
+			sourceColumn: Ordinal
+
+		partition 'Time Comparison' = calculationGroup
+
+	/// Period aggregation options using Federal Fiscal Year (Oct 1 - Sep 30). Apply to any measure for different time views.
+	table 'Period Selector'
+		lineageTag: 22222222-3333-4444-5555-666666666601
+
+		calculationGroup
+			precedence: 20
+
+			/// Current period - no modification
+			calculationItem 'Current' = SELECTEDMEASURE()
+				ordinal: 0
+
+			/// Fiscal Year to Date - from Oct 1 to selected date
+			calculationItem 'FYTD' =
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR FYStart = IF(MONTH(CurrentDate) >= 10, 
+						DATE(YEAR(CurrentDate), 10, 1),
+						DATE(YEAR(CurrentDate) - 1, 10, 1))
+					RETURN
+						CALCULATE(
+							SELECTEDMEASURE(),
+							'SnapshotDate_End'[Snapshot Date] >= FYStart,
+							'SnapshotDate_End'[Snapshot Date] <= CurrentDate,
+							ALL('SnapshotDate_End'),
+							ALL('SnapshotDate_Start')
+						)
+				ordinal: 1
+
+			/// Fiscal Quarter to Date - from start of fiscal quarter to selected date
+			calculationItem 'FQTD' =
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR CurrentMonth = MONTH(CurrentDate)
+					VAR FQStart = 
+						SWITCH(TRUE(),
+							CurrentMonth IN {10, 11, 12}, DATE(YEAR(CurrentDate), 10, 1),
+							CurrentMonth IN {1, 2, 3}, DATE(YEAR(CurrentDate), 1, 1),
+							CurrentMonth IN {4, 5, 6}, DATE(YEAR(CurrentDate), 4, 1),
+							DATE(YEAR(CurrentDate), 7, 1)
+						)
+					RETURN
+						CALCULATE(
+							SELECTEDMEASURE(),
+							'SnapshotDate_End'[Snapshot Date] >= FQStart,
+							'SnapshotDate_End'[Snapshot Date] <= CurrentDate,
+							ALL('SnapshotDate_End'),
+							ALL('SnapshotDate_Start')
+						)
+				ordinal: 2
+
+			/// Rolling 4 quarters (12 months) average - smooths seasonal variations
+			calculationItem 'Rolling 4Q Avg' =
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR StartDate = EDATE(CurrentDate, -12)
+					VAR QuarterCount = 
+						CALCULATE(
+							DISTINCTCOUNT('SnapshotDate_End'[Snapshot Date]),
+							'SnapshotDate_End'[Snapshot Date] > StartDate,
+							'SnapshotDate_End'[Snapshot Date] <= CurrentDate,
+							ALL('SnapshotDate_End')
+						)
+					RETURN
+						DIVIDE(
+							CALCULATE(
+								SELECTEDMEASURE(),
+								'SnapshotDate_End'[Snapshot Date] > StartDate,
+								'SnapshotDate_End'[Snapshot Date] <= CurrentDate,
+								ALL('SnapshotDate_End'),
+								ALL('SnapshotDate_Start')
+							),
+							QuarterCount
+						)
+				ordinal: 3
+
+			/// Same quarter in prior fiscal year
+			calculationItem 'Same Qtr PFY' =
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR PriorYearDate = EDATE(CurrentDate, -12)
+					RETURN
+						CALCULATE(
+							SELECTEDMEASURE(),
+							'SnapshotDate_End'[Snapshot Date] = PriorYearDate
+						)
+				ordinal: 4
+
+			/// Full prior fiscal year total
+			calculationItem 'Prior FY Total' =
+					VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+					VAR CurrentFY = IF(MONTH(CurrentDate) >= 10, YEAR(CurrentDate) + 1, YEAR(CurrentDate))
+					VAR PriorFYStart = DATE(CurrentFY - 2, 10, 1)
+					VAR PriorFYEnd = DATE(CurrentFY - 1, 9, 30)
+					RETURN
+						CALCULATE(
+							SELECTEDMEASURE(),
+							'SnapshotDate_End'[Snapshot Date] >= PriorFYStart,
+							'SnapshotDate_End'[Snapshot Date] <= PriorFYEnd,
+							ALL('SnapshotDate_End'),
+							ALL('SnapshotDate_Start')
+						)
+				ordinal: 5
+
+			/// All time cumulative total
+			calculationItem 'All Time' =
+					CALCULATE(
+						SELECTEDMEASURE(),
+						ALL('SnapshotDate_End'),
+						ALL('SnapshotDate_Start')
+					)
+				ordinal: 6
+
+		column 'Period Selector'
+			dataType: string
+			lineageTag: 22222222-3333-4444-5555-666666666602
+			summarizeBy: none
+			sourceColumn: Name
+			sortByColumn: Ordinal
+
+		column Ordinal
+			dataType: int64
+			isHidden
+			lineageTag: 22222222-3333-4444-5555-666666666603
+			summarizeBy: sum
+			sourceColumn: Ordinal
+
+		partition 'Period Selector' = calculationGroup
+
+		table Targets
+			lineageTag: dece75b4-d135-4b19-972a-858d6e3215aa
+
+			column 'Target Type'
+				lineageTag: 3dee896e-9b78-438d-8d43-0ddfb8f57152
+				isNameInferred
+				sourceColumn: [Target Type]
+
+			column Dimension
+				lineageTag: 9d23bb74-08e4-4a5d-abde-3b6138c3dafd
+				isNameInferred
+				sourceColumn: [Dimension]
+
+			column 'Dimension Value'
+				lineageTag: 5716d641-71ef-47db-97f5-44100d50ba8b
+				isNameInferred
+				sourceColumn: [Dimension Value]
+
+			column 'Target Value'
+				lineageTag: 4a92e6c3-05ad-4743-906a-4f788be5e274
+				isNameInferred
+				sourceColumn: [Target Value]
+
+			partition Targets = calculated
+				mode: import
+				source =
+						DATATABLE(
+							"Target Type", STRING,
+							"Dimension", STRING,
+							"Dimension Value", STRING,
+							"Target Value", DOUBLE,
+							{
+								{"Attrition", "Center", "ACQ", 0.15},
+								{"Attrition", "Center", "DCDC", 0.12},
+								{"Attrition", "Center", "EII", 0.10},
+								{"Attrition", "Center", "GSV (J6)", 0.08},
+								{"Attrition", "Center", "HAC (J9)", 0.10},
+								{"Attrition", "Center", "JSO (J1)", 0.12},
+								{"Attrition", "Center", "DEFAULT", 0.12},
+								{"Attrition", "Series", "2210", 0.18},
+								{"Attrition", "Series", "0343", 0.10},
+								{"Attrition", "Series", "0301", 0.12},
+								{"Attrition", "Series", "DEFAULT", 0.12},
+								{"Retention", "Center", "DEFAULT", 0.88},
+								{"Retention", "Series", "DEFAULT", 0.88}
+							}
+						)
+
+		/// Occupational series classification codes (OPM job series).
+		table Dim_Series
+			lineageTag: 8cfa9bf2-3bae-407e-be99-6cc614f66ddb
+
+			column 'Occ Series Current'
+				dataType: string
+				lineageTag: fac1892c-fdf1-411d-b1ae-1e45fcadef39
+				summarizeBy: none
+				sourceColumn: Occ Series Current
+
+				annotation SummarizationSetBy = Automatic
+
+			/// FIX #1 & #2: Renamed partition from Dim_Seires to Dim_Series and simplified query
+			partition Dim_Series = m
+				mode: import
+				source =
+						let
+							Source = Fact_EmployeeSnapshot,
+							#"Select Column" = Table.SelectColumns(Source, {"Occ Series Current"}),
+							#"Remove Duplicates" = Table.Distinct(#"Select Column"),
+							#"Remove Nulls" = Table.SelectRows(#"Remove Duplicates", each [Occ Series Current] <> null and [Occ Series Current] <> "")
+						in
+							#"Remove Nulls"
+
+			annotation PBI_NavigationStepName = Navigation
+
+			annotation PBI_ResultType = Table
+
+		table Agg_OrgSeries_Summary
+			lineageTag: a0ab2519-1b73-47c9-b276-92b89f43a4b2
+
+			column Center
+				lineageTag: 928e3570-404c-4a58-b145-8afa68302b0d
+				isNameInferred
+				sourceColumn: Dim_Organization[Center]
+				columnOrigin: Dim_Organization.Center
+
+			column Org
+				lineageTag: 134290a8-b5f2-410a-bf84-dfa8ee547a07
+				isNameInferred
+				sourceColumn: Dim_Organization[Org]
+				columnOrigin: Dim_Organization.Org
+
+			column 'Occ Series Current'
+				lineageTag: 530d9a5d-aa21-41ca-afc4-5e8181fa8ccf
+				isNameInferred
+				sourceColumn: Dim_Series[Occ Series Current]
+				columnOrigin: Dim_Series.'Occ Series Current'
+
+			column 'Snapshot Date'
+				lineageTag: 96ad0ab1-7685-42e8-9346-9cc3fb4302bd
+				isNameInferred
+				sourceColumn: SnapshotDate_End[Snapshot Date]
+				columnOrigin: SnapshotDate_End.'Snapshot Date'
+
+			column OnHand
+				lineageTag: fd28a70d-6578-401b-8009-1e0aeb895ca5
+				isNameInferred
+				sourceColumn: [OnHand]
+
+			column Losses
+				lineageTag: 17f4bf96-b371-426f-9b4e-d93c1a8895d7
+				isNameInferred
+				sourceColumn: [Losses]
+
+			column Gains
+				lineageTag: 392e5e9e-3c7e-477b-ad53-4890f9b229dc
+				isNameInferred
+				sourceColumn: [Gains]
+
+			column AttritionRate
+				lineageTag: 53d163d5-8091-450f-8aa9-a4b1c9e53d3d
+				isNameInferred
+				sourceColumn: [AttritionRate]
+
+			partition Agg_OrgSeries_Summary = calculated
+				mode: import
+				source =
+						SUMMARIZECOLUMNS(
+							'Dim_Organization'[Center],
+							'Dim_Organization'[Org],
+							'Dim_Series'[Occ Series Current],
+							'SnapshotDate_End'[Snapshot Date],
+							"OnHand", [On-Hand Count (End)],
+							"Losses", [Total Losses],
+							"Gains", [Total Gains],
+							"AttritionRate", [Attrition Rate]
+						)
+
+		relationship d9d24692-8553-878b-43aa-a312cebfcdf1
+			fromColumn: Fact_EmployeeSnapshot.'ORG First 2'
+			toColumn: Dim_Organization.Dcode
+
+		relationship c6fc082b-0fd8-540e-2c1b-e775d8dedc30
+			fromColumn: Fact_PersonnelActions.'From ORG 2 Digit'
+			toColumn: Dim_Organization.Dcode
+
+		relationship 52264a45-0afa-ba8e-ead4-ee2c395b8c59
+			fromColumn: Fact_EmployeeSnapshot.CompositeKey
+			toColumn: Dim_Employee.CompositeKey
+
+		relationship 68334c51-0370-10b9-e537-213f7749c93b
+			fromColumn: Fact_PersonnelActions.CompositeKey
+			toColumn: Dim_Employee.CompositeKey
+
+		perspective 'Executive View'
+
+			perspectiveTable _Measures
+
+				perspectiveMeasure 'On-Hand Count (End)'
+
+				perspectiveMeasure 'Total Losses'
+
+				perspectiveMeasure 'Total Gains'
+
+				perspectiveMeasure 'Net Change'
+
+				perspectiveMeasure 'Attrition Rate'
+
+				perspectiveMeasure 'Annualized Attrition Rate'
+
+				perspectiveMeasure 'Retention Rate'
+
+				perspectiveMeasure 'YoY Workforce Change %'
+
+				perspectiveMeasure 'Average Age'
+
+				perspectiveMeasure 'Average Tenure (Years)'
+
+				perspectiveMeasure 'Retirement Eligible'
+
+				perspectiveMeasure 'Retirement Eligible %'
+
+				perspectiveMeasure 'Near Retirement'
+
+				perspectiveMeasure 'Attrition Status'
+
+				perspectiveMeasure 'Attrition Status Color'
+
+				perspectiveMeasure 'Attrition Target'
+
+				perspectiveMeasure 'Target Status'
+
+				perspectiveMeasure 'Dynamic Title - Date Range'
+
+			perspectiveTable Dim_Organization
+
+				perspectiveColumn Center
+
+				perspectiveColumn Org
+
+				perspectiveHierarchy 'Organization Hierarchy'
+
+			perspectiveTable SnapshotDate_Start
+
+				perspectiveColumn 'Snapshot Date'
+
+			perspectiveTable SnapshotDate_End
+
+				perspectiveColumn 'Snapshot Date'
+
+		perspective 'Manager View'
+
+			perspectiveTable _Measures
+
+				perspectiveMeasure 'On-Hand Count (Start)'
+
+				perspectiveMeasure 'On-Hand Count (End)'
+
+				perspectiveMeasure 'Average On-Hand Count'
+
+				perspectiveMeasure 'Total Losses'
+
+				perspectiveMeasure 'Voluntary Losses'
+
+				perspectiveMeasure 'Non-Voluntary Losses'
+
+				perspectiveMeasure 'Attrition Rate'
+
+				perspectiveMeasure 'Voluntary Attrition Rate'
+
+				perspectiveMeasure 'Non-Voluntary Attrition Rate'
+
+				perspectiveMeasure 'Retention Rate'
+
+				perspectiveMeasure 'Net Change'
+
+				perspectiveMeasure 'Total Gains'
+
+				perspectiveMeasure 'Dynamic Title - Date Range'
+
+			perspectiveTable Dim_Organization
+				includeAll
+
+			perspectiveTable Fact_EmployeeSnapshot
+
+				perspectiveColumn Center
+
+				perspectiveColumn Org
+
+				perspectiveColumn Title
+
+				perspectiveColumn 'Grade or Level'
+
+				perspectiveColumn 'Tenure Bucket'
+
+				perspectiveColumn 'Age Group'
+
+			perspectiveTable SnapshotDate_Start
+				includeAll
+
+			perspectiveTable SnapshotDate_End
+				includeAll
+
+		perspective 'HR Analyst View'
+
+			perspectiveTable _Measures
+				includeAll
+
+			perspectiveTable Dim_Organization
+				includeAll
+
+			perspectiveTable Dim_Series
+				includeAll
+
+			perspectiveTable Dim_Employee
+				includeAll
+
+			perspectiveTable Fact_EmployeeSnapshot
+				includeAll
+
+			perspectiveTable Fact_PersonnelActions
+				includeAll
+
+			perspectiveTable SnapshotDate_Start
+				includeAll
+
+			perspectiveTable SnapshotDate_End
+				includeAll
+
+		cultureInfo en-US
+
+			linguisticMetadata = {"Version":"2.0.0","Language":"en-US","Entities":{"table_measures.organizational_retention_rate":{"Definition":{"Binding":{"ConceptualEntity":"_Measures","ConceptualProperty":"Organizational Retention Rate"}},"State":"Generated","Terms":[{"Retention Rate":{"State":"Suggested","Source":{"Type":"External","Agent":"PowerBI.VisualColumnRename"},"Weight":0.9}}]},"table_measures.onhand_count_end":{"Definition":{"Binding":{"ConceptualEntity":"_Measures","ConceptualProperty":"On-Hand Count (End)"}},"State":"Generated","Terms":[{"On-Hand End":{"State":"Suggested","Source":{"Type":"External","Agent":"PowerBI.VisualColumnRename"},"Weight":0.9}}]},"table_measures.attrition_rate_w__icon":{"Definition":{"Binding":{"ConceptualEntity":"_Measures","ConceptualProperty":"Attrition Rate w/ Icon"}},"State":"Generated","Terms":[{"Attrition Rate":{"State":"Suggested","Source":{"Type":"External","Agent":"PowerBI.VisualColumnRename"},"Weight":0.9}}]},"table_measures.onhand_count_start":{"Definition":{"Binding":{"ConceptualEntity":"_Measures","ConceptualProperty":"On-Hand Count (Start)"}},"State":"Generated","Terms":[{"On-Hand Start":{"State":"Suggested","Source":{"Type":"External","Agent":"PowerBI.VisualColumnRename"},"Weight":0.9}}]},"table_measures.onhand_start_new_hires":{"Definition":{"Binding":{"ConceptualEntity":"_Measures","ConceptualProperty":"On-Hand Start (New Hires)"}},"State":"Generated","Terms":[{"New Hires":{"State":"Suggested","Source":{"Type":"External","Agent":"PowerBI.VisualColumnRename"},"Weight":0.9}}]},"snapshotdate_end.snapshot_date":{"Definition":{"Binding":{"ConceptualEntity":"SnapshotDate_End","ConceptualProperty":"Snapshot Date"}},"State":"Generated","Terms":[{"End Date":{"State":"Suggested","Source":{"Type":"External","Agent":"PowerBI.VisualColumnRename"},"Weight":0.9}}]},"snapshotdate_start.snapshot_date":{"Definition":{"Binding":{"ConceptualEntity":"SnapshotDate_Start","ConceptualProperty":"Snapshot Date"}},"State":"Generated","Terms":[{"Start Date":{"State":"Suggested","Source":{"Type":"External","Agent":"PowerBI.VisualColumnRename"},"Weight":0.9}}]}}}
+				contentType: json
+
+		annotation __PBI_TimeIntelligenceEnabled = 0
+
+		annotation PBI_QueryOrder = ["Dim_Organization","Fact_EmployeeSnapshot","Fact_PersonnelActions","_Measures","Dim_Series"]
+
+		annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode","TMDLView_Desktop"]
