@@ -1,0 +1,27 @@
+/// Occupational series classification codes (OPM job series).
+table Dim_Series
+	lineageTag: 8cfa9bf2-3bae-407e-be99-6cc614f66ddb
+
+	column 'Occ Series Current'
+		dataType: string
+		lineageTag: fac1892c-fdf1-411d-b1ae-1e45fcadef39
+		summarizeBy: none
+		sourceColumn: Occ Series Current
+
+		annotation SummarizationSetBy = Automatic
+
+	/// FIX #1 & #2: Renamed partition from Dim_Seires to Dim_Series and simplified query
+	partition Dim_Series = m
+		mode: import
+		source =
+				let
+				    Source = Fact_EmployeeSnapshot,
+				    #"Select Column" = Table.SelectColumns(Source, {"Occ Series Current"}),
+				    #"Remove Duplicates" = Table.Distinct(#"Select Column"),
+				    #"Remove Nulls" = Table.SelectRows(#"Remove Duplicates", each [Occ Series Current] <> null and [Occ Series Current] <> "")
+				in
+				    #"Remove Nulls"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table

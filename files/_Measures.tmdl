@@ -1,0 +1,695 @@
+/// Container table for all DAX measures. The Placeholder column exists only to host measures.
+table _Measures
+	lineageTag: d825094e-4396-4c09-bcc5-e6bca304e476
+
+	/// Total employee count at the beginning of the selected period
+	measure 'On-Hand Count (Start)' = ```
+			
+			        VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			        RETURN CALCULATE(DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]), 'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedStartDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+			```
+		formatString: 0
+		displayFolder: Headcount
+		lineageTag: 76b595c8-455c-4efb-a249-de173fd869c5
+
+	/// Total employee count at the end of the selected period
+	measure 'On-Hand Count (End)' = ```
+			
+			        VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			        RETURN CALCULATE(DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]), 'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+			```
+		formatString: 0
+		displayFolder: Headcount
+		lineageTag: f63184e6-aba9-4532-a490-af7be36977ea
+
+	/// Average of start and end period headcount
+	measure 'Average On-Hand Count' = DIVIDE([On-Hand Count (End)] + [On-Hand Count (Start)], 2)
+		formatString: 0.0
+		displayFolder: Headcount
+		lineageTag: 504c1562-f48e-4e44-ab8c-d884fdbd6839
+
+	/// Total number of employee separations during the period
+	measure 'Total Losses' = ```
+			
+			        VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			        VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			        RETURN CALCULATE(COUNTROWS(Fact_PersonnelActions), Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate, Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate, Fact_PersonnelActions[IsStudentIntern] = FALSE, Fact_PersonnelActions[Compare From and To Organization] = FALSE(),
+			        LEFT(Fact_PersonnelActions[FIRST_NOA_CODE_5A], 1) = "3" || Fact_PersonnelActions[FIRST_NOA_CODE_5A] IN {"501", "570", "702", "721", "T352", "CAO"})
+			```
+		formatString: 0
+		displayFolder: Losses
+		lineageTag: 13f9d733-af47-4aae-8021-e81414822f25
+
+	/// Employee separations initiated by the organization (terminations, RIFs)
+	measure 'Non-Voluntary Losses' = CALCULATE([Total Losses], Fact_PersonnelActions[Attrition Type] = "Non-voluntary")
+		formatString: 0
+		displayFolder: Losses
+		lineageTag: 8488a35b-0b5f-4a5c-9341-628ff394cb17
+
+	/// Separations of employees hired within the measurement period
+	measure 'New Hire Losses' = CALCULATE([Total Losses], Fact_PersonnelActions[IsNewHire] = TRUE)
+		formatString: 0
+		displayFolder: Losses
+		lineageTag: bc180c19-fc3b-439d-90d6-ae1ff00d293f
+
+	/// Employee separations initiated by the employee (resignations, retirements)
+	measure 'Voluntary Losses' = [Total Losses] - [Non-Voluntary Losses]
+		formatString: 0
+		displayFolder: Losses
+		lineageTag: 334f1e57-57da-49f3-82ac-e4bfdf455295
+
+	/// Count of employees remaining after losses
+	measure 'Remaining Count' = ```
+			
+			        VAR vFirstDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			        VAR vLastDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			        VAR EmployeesAtStart = CALCULATETABLE(VALUES('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vFirstDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+			        VAR EmployeesAtEnd = CALCULATETABLE(VALUES('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vLastDate)
+			        RETURN COUNTROWS(INTERSECT(EmployeesAtStart, EmployeesAtEnd))
+			```
+		formatString: 0
+		displayFolder: Headcount
+		lineageTag: 68e70967-b94a-4554-94f4-1c5e1d45d32b
+
+	/// Remaining employees as a percentage of starting headcount - measures workforce consistency
+	measure 'Stability Index' = DIVIDE([Remaining Count], [On-Hand Count (Start)])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: 83831431-87e5-42df-a26f-b8d4fcf49d5f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Total losses as a percentage of average headcount
+	measure 'Attrition Rate' = DIVIDE([Total Losses], [Average On-Hand Count])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Rates
+		lineageTag: 670b9352-f174-4ed6-adda-7e143c95b107
+
+	/// Non-voluntary losses as a percentage of average headcount
+	measure 'Non-Voluntary Attrition Rate' = DIVIDE([Non-Voluntary Losses], [Average On-Hand Count])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Rates
+		lineageTag: 792e2ea4-5acd-418e-8c1d-9a08801710c8
+
+	/// Voluntary losses as a percentage of average headcount
+	measure 'Voluntary Attrition Rate' = [Attrition Rate] - [Non-Voluntary Attrition Rate]
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Rates
+		lineageTag: 6533994e-07e4-40c5-89ce-2a40789e9c62
+
+	/// New hire losses as a percentage of new hire headcount
+	measure 'New Hire Attrition Rate' = DIVIDE([New Hire Losses], [Average On-Hand Count])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Rates
+		lineageTag: 98548004-702e-45d3-8d12-7be3a14fcfd7
+
+	/// Employees who left the organization entirely
+	measure 'External Losses' = ```
+			
+			        CALCULATE(
+			            [Total Losses],
+			            Fact_PersonnelActions[Internal/External Movement] = "External"
+			        )
+			```
+		formatString: 0
+		displayFolder: Losses
+		lineageTag: c6047bce-dec0-4325-a511-b1d1107ced20
+
+	/// Employees who transferred to other parts of the organization
+	measure 'Internal Moves' = ```
+			
+			        CALCULATE(
+			            [Total Losses],
+			            Fact_PersonnelActions[Internal/External Movement] = "Internal"
+			        )
+			```
+		formatString: 0
+		displayFolder: Losses
+		lineageTag: a0a64e14-e5cb-4939-bec6-9f7f7e109ec3
+
+	/// Retention rate calculated at the organizational level
+	measure 'Organizational Retention Rate' = ```
+			
+			        DIVIDE([Org Retention Numerator], [On-Hand Count (Start)])
+			```
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: 8d4037eb-a322-4786-88c2-e638e354944d
+
+	/// Retention rate calculated by job series
+	measure 'Job Series Retention Rate' = ```
+			
+			        DIVIDE([Series Retention Numerator], [On-Hand Count (Start)])
+			```
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: 6828f9c6-4edc-49ae-86a1-b8c96923c0e9
+
+	/// Numerator used for organizational retention calculations
+	measure 'Org Retention Numerator' = ```
+			
+			        VAR vFirstDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			        VAR vLastDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			        VAR StartSnapshot = CALCULATETABLE(SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[DoD ID (EDIPI)], 'Fact_EmployeeSnapshot'[Org]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vFirstDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+			        VAR EndSnapshot = CALCULATETABLE(SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[DoD ID (EDIPI)], 'Fact_EmployeeSnapshot'[Org]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vLastDate)
+			        RETURN COUNTROWS(INTERSECT(StartSnapshot, EndSnapshot))
+			```
+		formatString: 0
+		isHidden
+		displayFolder: Supporting
+		lineageTag: d0a857f2-bcf1-4e00-ae38-339b824be25f
+
+	/// Numerator used for job series retention calculations
+	measure 'Series Retention Numerator' = ```
+			
+			        VAR vFirstDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			        VAR vLastDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			        VAR StartSnapshot = CALCULATETABLE(SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[DoD ID (EDIPI)], 'Fact_EmployeeSnapshot'[Occ Series Current]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vFirstDate, 'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE)
+			        VAR EndSnapshot = CALCULATETABLE(SUMMARIZE('Fact_EmployeeSnapshot', 'Fact_EmployeeSnapshot'[DoD ID (EDIPI)], 'Fact_EmployeeSnapshot'[Occ Series Current]), 'Fact_EmployeeSnapshot'[Snapshot Date] = vLastDate)
+			        RETURN COUNTROWS(INTERSECT(StartSnapshot, EndSnapshot))
+			```
+		formatString: 0
+		isHidden
+		displayFolder: Supporting
+		lineageTag: bb535d56-226d-4024-9404-93df22bdcb3d
+
+	/// Dynamic attrition target that varies by Center or Series. Falls back to DEFAULT if no specific target exists.
+	measure 'Attrition Target' = ```
+			VAR SelectedCenter = SELECTEDVALUE('Dim_Organization'[Center])
+			VAR SelectedSeries = SELECTEDVALUE('Dim_Series'[Occ Series Current])
+			
+			// Try to find a center-specific target first
+			VAR CenterTarget = 
+			    CALCULATE(
+			        MAX('Targets'[Target Value]),
+			        'Targets'[Target Type] = "Attrition",
+			        'Targets'[Dimension] = "Center",
+			        'Targets'[Dimension Value] = SelectedCenter
+			    )
+			
+			// Try series-specific target
+			VAR SeriesTarget = 
+			    CALCULATE(
+			        MAX('Targets'[Target Value]),
+			        'Targets'[Target Type] = "Attrition",
+			        'Targets'[Dimension] = "Series",
+			        'Targets'[Dimension Value] = SelectedSeries
+			    )
+			
+			// Default fallback
+			VAR DefaultTarget = 
+			    CALCULATE(
+			        MAX('Targets'[Target Value]),
+			        'Targets'[Target Type] = "Attrition",
+			        'Targets'[Dimension Value] = "DEFAULT"
+			    )
+			
+			RETURN
+			    // Priority: Center > Series > Default
+			    COALESCE(CenterTarget, SeriesTarget, DefaultTarget, 0.12)
+			```
+		formatString: 0.0%
+		displayFolder: Targets
+		lineageTag: 082b5f62-b7a4-4738-8ae4-2ddc0b662e45
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Difference between actual attrition and target
+	measure 'Attrition Variance' = [Attrition Rate] - [Attrition Target]
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Targets
+		lineageTag: 6fd56f37-03b3-419c-8c1e-4bfce44d1fa2
+
+	/// Dynamic retention target that varies by Center or Series. Falls back to DEFAULT if no specific target exists.
+	measure 'Retention Target' = ```
+			VAR SelectedCenter = SELECTEDVALUE('Dim_Organization'[Center])
+			
+			// Try to find a center-specific target first
+			VAR CenterTarget = 
+			    CALCULATE(
+			        MAX('Targets'[Target Value]),
+			        'Targets'[Target Type] = "Retention",
+			        'Targets'[Dimension] = "Center",
+			        'Targets'[Dimension Value] = SelectedCenter
+			    )
+			
+			// Default fallback
+			VAR DefaultTarget = 
+			    CALCULATE(
+			        MAX('Targets'[Target Value]),
+			        'Targets'[Target Type] = "Retention",
+			        'Targets'[Dimension Value] = "DEFAULT"
+			    )
+			
+			RETURN
+			    COALESCE(CenterTarget, DefaultTarget, 0.88)
+			```
+		formatString: 0.0%
+		displayFolder: Targets
+		lineageTag: 6404c861-b067-419e-8d56-ce8241495780
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Difference between actual retention and target
+	measure 'Retention Variance' = [Stability Index] - [Retention Target]
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Targets
+		lineageTag: 8df105f2-3e4b-49ef-be1f-6b5913476101
+
+	/// Total number of new employees added during the period
+	measure 'Total Gains' = ```
+			
+			        VAR NetChange = [On-Hand Count (End)] - [On-Hand Count (Start)]
+			        VAR Gains = NetChange + [Total Losses]
+			        RETURN
+			            Gains
+			```
+		formatString: 0
+		displayFolder: Gains
+		lineageTag: b9a4c442-f24c-4f42-8df7-b2f664326e6f
+
+	/// Rate of internal transfers and movements (Internal Moves ÷ Average On-Hand)
+	measure 'Internal Attrition' = DIVIDE([Internal Moves],[Total Losses])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: 5a5d7ca7-8b6d-4211-b922-780ab7cd5d79
+
+	/// Count of new hires at the start of the period
+	measure 'On-Hand Start (New Hires)' = ```
+			
+			        CALCULATE(
+			            [On-Hand Count (Start)],
+			            'Dim_Employee'[Tenure Bucket] = "0-2 years"
+			        )
+			```
+		formatString: 0
+		isHidden
+		displayFolder: Headcount
+		lineageTag: 14ce6216-841c-4ea4-a758-65daa462f8ec
+
+	/// Dynamic report title showing selected date range
+	measure 'Dynamic Title - Date Range' = ```
+			
+			        VAR StartDate = FORMAT(SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date]), "DD MMM YYYY")
+			        VAR EndDate = FORMAT(SELECTEDVALUE('SnapshotDate_End'[Snapshot Date]), "DD MMM YYYY")
+			        VAR TitleText = "DISA Work Force Analytics: " & StartDate & " to " & EndDate
+			        RETURN
+			            TitleText
+			
+			
+			```
+		displayFolder: Display
+		lineageTag: 51773916-3043-460e-99ee-c035998be70b
+
+	/// Remaining employees as a percentage of average headcount
+	measure 'Retention Rate' = DIVIDE([Remaining Count],[Average On-Hand Count])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Rates
+		lineageTag: e3307371-a02d-4e20-8c49-402f03850133
+
+	/// Rate of employees leaving to external organizations (External Losses ÷ Average On-Hand)
+	measure 'External Attrition' = DIVIDE([External Losses],[Total Losses])
+		formatString: 0.0%
+		displayFolder: Rates
+		lineageTag: cba541e8-62d0-42a2-8691-24151484f678
+
+	/// Net workforce change: Total Gains minus Total Losses. Positive = growth, Negative = decline.
+	measure 'Net Change' = [Total Gains] - [Total Losses]
+		formatString: 0
+		displayFolder: Headcount
+
+	/// Count of employees in probationary status (less than 1 year of service)
+	measure 'Probationary On-Hand' =
+			VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+			        'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedStartDate,
+			        'Fact_EmployeeSnapshot'[Tenure] = "1",
+			        'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+			    )
+		formatString: 0
+		displayFolder: Headcount
+
+	/// Count of probationary employee terminations
+	measure 'Probationary Terminations' =
+			VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        COUNTROWS(Fact_PersonnelActions),
+			        Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate,
+			        Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate,
+			        Fact_PersonnelActions[IsStudentIntern] = FALSE,
+			        LEFT(Fact_PersonnelActions[FIRST_NOA_CODE_5A], 1) = "3"
+			    )
+		formatString: 0
+		displayFolder: Losses
+
+	/// Probationary terminations as a percentage of probationary headcount
+	measure 'Probationary Term Rate (of Probs)' = DIVIDE([Probationary Terminations], [Probationary On-Hand])
+		formatString: 0.0%
+		displayFolder: Rates
+
+	/// Probationary terminations as a percentage of total headcount
+	measure 'Probationary Term Rate (of Total)' = DIVIDE([Probationary Terminations], [On-Hand Count (Start)])
+		formatString: 0.0%
+		displayFolder: Rates
+
+	/// Count of employees promoted during the period
+	measure Promotions =
+			VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        COUNTROWS(Fact_PersonnelActions),
+			        Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate,
+			        Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate,
+			        Fact_PersonnelActions[IsStudentIntern] = FALSE,
+			        Fact_PersonnelActions[FIRST_NOA_CODE_5A] IN {"702", "703", "713", "890"}
+			    )
+		formatString: 0
+		displayFolder: Gains
+
+	/// Promotions as a percentage of average headcount
+	measure 'Promotion Rate' = DIVIDE([Promotions], [Average On-Hand Count])
+		formatString: 0.0%
+		displayFolder: Rates
+
+	/// Internal transfers INTO an organization (gains from other orgs)
+	measure 'Internal Gains' =
+			VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        COUNTROWS(Fact_PersonnelActions),
+			        Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate,
+			        Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate,
+			        Fact_PersonnelActions[IsStudentIntern] = FALSE,
+			        Fact_PersonnelActions[Compare From and To Organization] = TRUE
+			    )
+		formatString: 0
+		displayFolder: Gains
+
+	/// Attrition rate annualized (quarterly rate × 4)
+	measure 'Annualized Attrition Rate' = [Attrition Rate] * 4
+		formatString: 0.0%
+		displayFolder: Executive KPIs
+
+	/// Year-over-year workforce headcount change as a percentage
+	measure 'YoY Workforce Change %' = ```
+			VAR CurrentOnHand = [On-Hand Count (End)]
+			VAR CurrentDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			VAR PriorYearDate = EDATE(CurrentDate, -12)
+			VAR PriorYearOnHand = 
+			    CALCULATE(
+			        DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+			        'Fact_EmployeeSnapshot'[Snapshot Date] = PriorYearDate,
+			        'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+			    )
+			RETURN
+			    DIVIDE(CurrentOnHand - PriorYearOnHand, PriorYearOnHand)
+			```
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Executive KPIs
+
+	/// Average years of service for current workforce
+	measure 'Average Tenure (Years)' =
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        AVERAGE('Fact_EmployeeSnapshot'[Years of Service]),
+			        'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+			        'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+			    )
+		formatString: 0.0
+		displayFolder: Workforce Overview
+
+	/// Average age of the workforce
+	measure 'Average Age' =
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        AVERAGE('Fact_EmployeeSnapshot'[Age]),
+			        'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+			        'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+			    )
+		formatString: 0.0
+		displayFolder: Executive KPIs
+
+	/// Count of employees eligible for retirement (Age >= 55 and Years of Service >= 20)
+	measure 'Retirement Eligible' =
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+			        'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+			        'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE,
+			        (
+			            ('Fact_EmployeeSnapshot'[Age] >= 55 && 'Fact_EmployeeSnapshot'[Years of Service] >= 20) ||
+			            ('Fact_EmployeeSnapshot'[Age] >= 60 && 'Fact_EmployeeSnapshot'[Years of Service] >= 10)
+			        )
+			    )
+		formatString: 0
+		displayFolder: Executive KPIs\Retention Risk
+
+	/// Percentage of workforce eligible for retirement
+	measure 'Retirement Eligible %' = DIVIDE([Retirement Eligible], [On-Hand Count (End)])
+		formatString: 0.0%
+		displayFolder: Executive KPIs\Retention Risk
+
+	/// Non-voluntary losses as a percentage of total losses
+	measure 'Non-Voluntary Loss %' = DIVIDE([Non-Voluntary Losses], [Total Losses])
+		formatString: 0.0%
+		displayFolder: Rates
+
+	/// Employees within 5 years of retirement eligibility (succession planning)
+	measure 'Near Retirement (5yr)' =
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+			        'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+			        'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE,
+			        'Fact_EmployeeSnapshot'[Age] >= 50,
+			        'Fact_EmployeeSnapshot'[Years of Service] >= 15
+			    )
+		formatString: 0
+		displayFolder: Retention Risk
+
+	/// Employees with less than 2 years of service (high turnover risk)
+	measure 'Early Career Count' =
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+			        'Fact_EmployeeSnapshot'[Snapshot Date] = SelectedEndDate,
+			        'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE,
+			        'Fact_EmployeeSnapshot'[Years of Service] < 2
+			    )
+		formatString: 0
+		displayFolder: Retention Risk
+
+	/// Percentage of workforce with less than 2 years of service
+	measure 'Early Career %' = DIVIDE([Early Career Count], [On-Hand Count (End)])
+		formatString: 0.0%
+		displayFolder: Retention Risk
+
+	/// Total current workforce headcount at the end of the selected period
+	measure 'Total Workforce' = [On-Hand Count (End)]
+		formatString: #,##0
+		displayFolder: Executive KPIs
+
+	/// Percentage of attrition that was voluntary (employee-initiated)
+	measure 'Voluntary Attrition %' = DIVIDE([Voluntary Losses], [Total Losses])
+		formatString: 0.0%
+		displayFolder: Executive KPIs
+
+	/// Count of employees nearing retirement eligibility (Age 50-54 with 15+ years)
+	measure 'Near Retirement' =
+			CALCULATE(
+			    DISTINCTCOUNT('Fact_EmployeeSnapshot'[DoD ID (EDIPI)]),
+			    'Fact_EmployeeSnapshot'[Snapshot Date] = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date]),
+			    'Fact_EmployeeSnapshot'[Age] >= 50,
+			    'Fact_EmployeeSnapshot'[Age] < 55,
+			    'Fact_EmployeeSnapshot'[Years of Service] >= 15,
+			    'Fact_EmployeeSnapshot'[IsStudentIntern] = FALSE
+			)
+		formatString: #,##0
+		displayFolder: Executive KPIs\Retention Risk
+
+	/// Count of organizations with attrition rate above 20%
+	measure 'High Turnover Orgs' =
+			COUNTROWS(
+			    FILTER(
+			        SUMMARIZE(
+			            'Dim_Organization',
+			            'Dim_Organization'[Org],
+			            "OrgAttrition", [Attrition Rate]
+			        ),
+			        [OrgAttrition] > 0.20
+			    )
+			)
+		formatString: #,##0
+		displayFolder: Executive KPIs\Retention Risk
+
+	/// Total loss of institutional knowledge based on tenure of departing employees
+	measure 'Lost Tenure (Years)' =
+			VAR SelectedStartDate = SELECTEDVALUE('SnapshotDate_Start'[Snapshot Date])
+			VAR SelectedEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
+			RETURN
+			    CALCULATE(
+			        SUM('Fact_PersonnelActions'[Years of Service]),
+			        Fact_PersonnelActions[EFFECTIVE_DATE_4] > SelectedStartDate,
+			        Fact_PersonnelActions[EFFECTIVE_DATE_4] <= SelectedEndDate,
+			        LEFT(Fact_PersonnelActions[FIRST_NOA_CODE_5A], 1) = "3"
+			    )
+		formatString: #,##0
+		displayFolder: Executive KPIs\Retention Risk
+
+	/// Average tenure of employees who left during the period
+	measure 'Avg Tenure of Losses' = DIVIDE([Lost Tenure (Years)], [Total Losses])
+		formatString: 0.0
+		displayFolder: Executive KPIs\Retention Risk
+
+	/// Returns color code for attrition status: Green (<10%), Yellow (10-15%), Red (>15%)
+	measure 'Attrition Status Color' =
+			VAR AttritionValue = [Annualized Attrition Rate]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        AttritionValue <= 0.10, "#2E7D32",
+			        AttritionValue <= 0.15, "#F9A825",
+			        "#C62828"
+			    )
+		displayFolder: Conditional Formatting
+
+	/// Returns icon/text for attrition status
+	measure 'Attrition Status' =
+			VAR AttritionValue = [Annualized Attrition Rate]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        AttritionValue <= 0.10, "✅ Good",
+			        AttritionValue <= 0.15, "⚠️ Watch",
+			        "🚨 High"
+			    )
+		displayFolder: Conditional Formatting
+
+	/// Returns color for retention risk: Green (<5%), Yellow (5-10%), Red (>10%)
+	measure 'Retirement Risk Color' =
+			VAR RetirementPct = [Retirement Eligible %]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        RetirementPct <= 0.05, "#2E7D32",
+			        RetirementPct <= 0.10, "#F9A825",
+			        "#C62828"
+			    )
+		displayFolder: Conditional Formatting
+
+	/// Returns status text for target variance
+	measure 'Target Status' =
+			VAR Variance = [Attrition Rate vs Target]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(Variance), "No Target",
+			        Variance <= 0, "✅ On Target",
+			        Variance <= 0.02, "⚠️ Near Target",
+			        "🚨 Above Target"
+			    )
+		displayFolder: Conditional Formatting
+
+	/// Returns background color for YoY change: Green (positive), Red (negative)
+	measure 'YoY Change Color' =
+			VAR ChangeValue = [YoY Workforce Change %]
+			RETURN
+			    IF(ChangeValue >= 0, "#E8F5E9", "#FFEBEE")
+		displayFolder: Conditional Formatting
+
+	/// Returns arrow indicator for trend direction
+	measure 'Net Change Indicator' =
+			VAR ChangeValue = [Net Change]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ChangeValue > 0, "↑ +" & FORMAT(ChangeValue, "#,##0"),
+			        ChangeValue < 0, "↓ " & FORMAT(ChangeValue, "#,##0"),
+			        "↔ 0"
+			    )
+		displayFolder: Conditional Formatting
+
+	/// Employee detail for drill-through: Name, Org, Series, Tenure
+	measure 'Top 10 Senior Employees' =
+			VAR SelectedOrg = SELECTEDVALUE('Dim_Organization'[Org])
+			VAR SelectedSeries = SELECTEDVALUE('Dim_Series'[Occ Series Current])
+			RETURN
+			    CONCATENATEX(
+			        TOPN(
+			            10,
+			            FILTER(
+			                'Fact_EmployeeSnapshot',
+			                'Fact_EmployeeSnapshot'[Org First 2] = LEFT(SelectedOrg, 2)
+			            ),
+			            'Fact_EmployeeSnapshot'[Years of Service], DESC
+			        ),
+			        'Fact_EmployeeSnapshot'[Title] & " (" & FORMAT('Fact_EmployeeSnapshot'[Years of Service], "0.0") & " yrs)",
+			        ", "
+			    )
+		displayFolder: Drill-Through
+
+	/// Summary text for drill-through page header
+	measure 'Drill-Through Context' =
+			VAR SelectedOrg = SELECTEDVALUE('Dim_Organization'[Org], "All Organizations")
+			VAR SelectedCenter = SELECTEDVALUE('Dim_Organization'[Center], "All Centers")
+			VAR SelectedSeries = SELECTEDVALUE('Dim_Series'[Occ Series Current], "All Series")
+			RETURN
+			    "Showing details for: " & SelectedCenter & " / " & SelectedOrg & " / " & SelectedSeries
+		displayFolder: Drill-Through
+
+	/// Compact summary showing key metrics for the selected context
+	measure 'Quick Stats Summary' = ```
+			"Headcount: " & FORMAT([On-Hand Count (End)], "#,##0") & 
+			" | Losses: " & FORMAT([Total Losses], "#,##0") & 
+			" | Attrition: " & FORMAT([Attrition Rate], "0.0%")
+			```
+		displayFolder: Drill-Through
+
+	/// Returns status icon based on attrition variance from target
+	measure 'Target Performance' =
+			VAR Variance = [Attrition Variance]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(Variance), "⚪ No Data",
+			        Variance <= -0.02, "✅ Well Below Target",
+			        Variance <= 0, "✅ On Target",
+			        Variance <= 0.02, "⚠️ Slightly Above",
+			        "🚨 Above Target"
+			    )
+		displayFolder: Targets
+
+	column Placeholder
+		dataType: string
+		isHidden
+		lineageTag: ccf9fbf7-daa6-46f5-a3f2-ccc9833ab03f
+		summarizeBy: none
+		sourceColumn: Placeholder
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Placeholder = _t])
+				in
+				    Source
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

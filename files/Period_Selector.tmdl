@@ -1,0 +1,90 @@
+table 'Period Selector'
+
+	/// Period aggregation options for different time views. Uses Federal Fiscal Year (Oct-Sep).
+	calculationGroup
+		precedence: 20
+
+		/// Current period - no modification
+		calculationItem 'Current' = SELECTEDMEASURE()
+
+		/// Fiscal Year to Date - from Oct 1 to selected date
+		calculationItem 'FYTD' =
+				VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+				VAR FYStart = IF(MONTH(CurrentDate) >= 10, 
+				    DATE(YEAR(CurrentDate), 10, 1),
+				    DATE(YEAR(CurrentDate) - 1, 10, 1))
+				RETURN
+				    CALCULATE(
+				        SELECTEDMEASURE(),
+				        'SnapshotDate_End'[Snapshot Date] >= FYStart,
+				        'SnapshotDate_End'[Snapshot Date] <= CurrentDate
+				    )
+
+		/// Fiscal Quarter to Date - from start of fiscal quarter to selected date
+		calculationItem 'FQTD' =
+				VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+				VAR CurrentMonth = MONTH(CurrentDate)
+				VAR FQStart = 
+				    SWITCH(TRUE(),
+				        CurrentMonth IN {10, 11, 12}, DATE(YEAR(CurrentDate), 10, 1),
+				        CurrentMonth IN {1, 2, 3}, DATE(YEAR(CurrentDate), 1, 1),
+				        CurrentMonth IN {4, 5, 6}, DATE(YEAR(CurrentDate), 4, 1),
+				        DATE(YEAR(CurrentDate), 7, 1)
+				    )
+				RETURN
+				    CALCULATE(
+				        SELECTEDMEASURE(),
+				        'SnapshotDate_End'[Snapshot Date] >= FQStart,
+				        'SnapshotDate_End'[Snapshot Date] <= CurrentDate
+				    )
+
+		/// Rolling 4 quarters (12 months) - useful for smoothing seasonal variations
+		calculationItem 'Rolling 4Q' =
+				VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+				VAR StartDate = EDATE(CurrentDate, -12)
+				RETURN
+				    CALCULATE(
+				        SELECTEDMEASURE(),
+				        'SnapshotDate_End'[Snapshot Date] > StartDate,
+				        'SnapshotDate_End'[Snapshot Date] <= CurrentDate,
+				        ALL('SnapshotDate_End')
+				    )
+
+		/// Same period in prior fiscal year
+		calculationItem 'Prior FY' =
+				VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+				VAR PriorYearDate = EDATE(CurrentDate, -12)
+				RETURN
+				    CALCULATE(
+				        SELECTEDMEASURE(),
+				        'SnapshotDate_End'[Snapshot Date] = PriorYearDate
+				    )
+
+		/// Full prior fiscal year totals
+		calculationItem 'Prior FY Total' =
+				VAR CurrentDate = MAX('SnapshotDate_End'[Snapshot Date])
+				VAR CurrentFY = IF(MONTH(CurrentDate) >= 10, YEAR(CurrentDate) + 1, YEAR(CurrentDate))
+				VAR PriorFYStart = DATE(CurrentFY - 2, 10, 1)
+				VAR PriorFYEnd = DATE(CurrentFY - 1, 9, 30)
+				RETURN
+				    CALCULATE(
+				        SELECTEDMEASURE(),
+				        'SnapshotDate_End'[Snapshot Date] >= PriorFYStart,
+				        'SnapshotDate_End'[Snapshot Date] <= PriorFYEnd,
+				        ALL('SnapshotDate_End'),
+				        ALL('SnapshotDate_Start')
+				    )
+
+	column 'Period Selector'
+		dataType: string
+		isDefaultLabel
+		summarizeBy: none
+		sourceColumn: Name
+
+	column Ordinal
+		dataType: int64
+		isHidden
+		summarizeBy: sum
+		sourceColumn: Ordinal
+
+	partition 'Partition_Period Selector' = calculationGroup

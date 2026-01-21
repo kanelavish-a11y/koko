@@ -1,0 +1,39 @@
+/// Field parameter for dynamically switching analysis dimension
+table 'Dimension Selector'
+
+	/// FIX #4: Changed 'Dim_Series'[Series] to 'Dim_Series'[Occ Series Current]
+	partition 'Dimension Selector' = calculated
+		mode: import
+		source =
+				{
+				    ("Organization", NAMEOF('Dim_Organization'[Org]), 0),
+				    ("Center", NAMEOF('Dim_Organization'[Center]), 1),
+				    ("Job Series", NAMEOF('Dim_Series'[Occ Series Current]), 2),
+				    ("Pay Plan", NAMEOF('Fact_EmployeeSnapshot'[Pay Plan Current]), 3),
+				    ("Grade", NAMEOF('Fact_EmployeeSnapshot'[Grade or Level]), 4),
+				    ("Tenure Bucket", NAMEOF('Fact_EmployeeSnapshot'[Tenure Bucket]), 5),
+				    ("Age Group", NAMEOF('Fact_EmployeeSnapshot'[Age Group]), 6)
+				}
+
+	column 'Dimension Selector'
+		dataType: string
+		lineageTag: 11111111-aaaa-bbbb-cccc-dddddddddd01
+		summarizeBy: none
+		sourceColumn: Value1
+		sortByColumn: 'Dimension Selector Order'
+
+	column 'Dimension Selector Fields'
+		dataType: string
+		lineageTag: 11111111-aaaa-bbbb-cccc-dddddddddd02
+		summarizeBy: none
+		sourceColumn: Value2
+		isHidden
+
+	column 'Dimension Selector Order'
+		dataType: int64
+		lineageTag: 11111111-aaaa-bbbb-cccc-dddddddddd03
+		summarizeBy: sum
+		sourceColumn: Value3
+		isHidden
+
+	annotation PBI_Id = dimension-selector-field-parameter
