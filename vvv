@@ -1,86 +1,60 @@
-table 'Period Selector'
-	lineageTag: 22222222-3333-4444-5555-666666666666
+Got it. Here's just **Training, DGC, and Brown Bag**:
 
-	calculationGroup
-		precedence: 10
+---
 
-		calculationItem 'Selected Period' = SELECTEDMEASURE()
+```tmdl
+measure 'Training Completion Rate' = DIVIDE([Training Complete], [Total Employees], 0)
+	lineageTag: 00000000-0000-0000-0000-000000000006
 
-		calculationItem Quarterly =
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR QuarterStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 1)
-			RETURN
-				IF(
-					CurrentEndIndex > 1,
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_Start'[Snapshot Date] = QuarterStartDate,
-						'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
-					)
-				)
+measure 'Training Target' = "Target: 80%"
+	lineageTag: 00000000-0000-0000-0000-000000000007
 
-		calculationItem 'Annual (FY)' =
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentFY = IF(MONTH(CurrentEndDate) >= 10, YEAR(CurrentEndDate) + 1, YEAR(CurrentEndDate))
-			VAR FYStartDate =
-				MINX(
-					FILTER(
-						ALL('SnapshotIndex'),
-						VAR SnapFY = IF(MONTH('SnapshotIndex'[Snapshot Date]) >= 10, YEAR('SnapshotIndex'[Snapshot Date]) + 1, YEAR('SnapshotIndex'[Snapshot Date]))
-						RETURN SnapFY = CurrentFY
-					),
-					'SnapshotIndex'[Snapshot Date]
-				)
-			RETURN
-				IF(
-					NOT ISBLANK(FYStartDate),
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_Start'[Snapshot Date] = FYStartDate,
-						'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
-					)
-				)
+measure 'Training Variance' = 
+	VAR Diff = [Training Completion Rate] - 0.80
+	RETURN FORMAT(Diff, "+0.0%;-0.0%;0%")
+	lineageTag: 00000000-0000-0000-0000-000000000008
 
-		calculationItem 'Rolling 4 Quarters' =
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR RollingStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 4)
-			RETURN
-				IF(
-					CurrentEndIndex > 4,
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_Start'[Snapshot Date] = RollingStartDate,
-						'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
-					)
-				)
+measure 'Training Status' = IF([Training Completion Rate] >= 0.80, "✓ Met", "⚠ Below Target")
+	lineageTag: 00000000-0000-0000-0000-000000000009
 
-		calculationItem 'Rolling 2 Quarters' =
-			VAR CurrentEndDate = SELECTEDVALUE('SnapshotDate_End'[Snapshot Date])
-			VAR CurrentEndIndex = LOOKUPVALUE('SnapshotIndex'[Index], 'SnapshotIndex'[Snapshot Date], CurrentEndDate)
-			VAR RollingStartDate = LOOKUPVALUE('SnapshotIndex'[Snapshot Date], 'SnapshotIndex'[Index], CurrentEndIndex - 2)
-			RETURN
-				IF(
-					CurrentEndIndex > 2,
-					CALCULATE(
-						SELECTEDMEASURE(),
-						'SnapshotDate_Start'[Snapshot Date] = RollingStartDate,
-						'SnapshotDate_End'[Snapshot Date] = CurrentEndDate
-					)
-				)
+measure 'Training Color' = IF([Training Completion Rate] >= 0.80, "#27AE60", "#EB5757")
+	lineageTag: 00000000-0000-0000-0000-000000000010
 
-	column 'Period Selector'
-		dataType: string
-		lineageTag: aaaaaaaa-2222-3333-4444-555555555555
-		summarizeBy: none
-		sourceColumn: Name
-		sortByColumn: Ordinal
+measure 'DGC Attendance Rate' = DIVIDE([DGC Attendees], [DGC Invited], 0)
+	lineageTag: 00000000-0000-0000-0000-000000000011
 
-	column Ordinal
-		dataType: int64
-		isHidden
-		formatString: 0
-		lineageTag: bbbbbbbb-2222-3333-4444-555555555555
-		summarizeBy: none
-		sourceColumn: Ordinal
+measure 'DGC Target' = "Target: 35%"
+	lineageTag: 00000000-0000-0000-0000-000000000012
+
+measure 'DGC Variance' = 
+	VAR Diff = [DGC Attendance Rate] - 0.35
+	RETURN FORMAT(Diff, "+0.0%;-0.0%;0%")
+	lineageTag: 00000000-0000-0000-0000-000000000013
+
+measure 'DGC Status' = IF([DGC Attendance Rate] >= 0.35, "✓ Met", "⚠ Below Target")
+	lineageTag: 00000000-0000-0000-0000-000000000014
+
+measure 'DGC Color' = IF([DGC Attendance Rate] >= 0.35, "#27AE60", "#EB5757")
+	lineageTag: 00000000-0000-0000-0000-000000000015
+
+measure 'Brown Bag Attendance Rate' = DIVIDE([Brown Bag Attendees], [Brown Bag Invited], 0)
+	lineageTag: 00000000-0000-0000-0000-000000000016
+
+measure 'Brown Bag Target' = "Target: 35%"
+	lineageTag: 00000000-0000-0000-0000-000000000017
+
+measure 'Brown Bag Variance' = 
+	VAR Diff = [Brown Bag Attendance Rate] - 0.35
+	RETURN FORMAT(Diff, "+0.0%;-0.0%;0%")
+	lineageTag: 00000000-0000-0000-0000-000000000018
+
+measure 'Brown Bag Status' = IF([Brown Bag Attendance Rate] >= 0.35, "✓ Met", "⚠ Below Target")
+	lineageTag: 00000000-0000-0000-0000-000000000019
+
+measure 'Brown Bag Color' = IF([Brown Bag Attendance Rate] >= 0.35, "#27AE60", "#EB5757")
+	lineageTag: 00000000-0000-0000-0000-000000000020
+```
+
+---
+
+Paste after your DMM measures → Click **Apply**
