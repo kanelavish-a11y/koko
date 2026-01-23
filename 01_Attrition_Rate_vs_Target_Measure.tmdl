@@ -1,6 +1,0 @@
-// Add this measure to your _Measures table
-
-measure 'Attrition Rate vs Target' = [Attrition Rate] - [Attrition Target]
-	formatString: "+0.0%;-0.0%;0.0%"
-	displayFolder: Targets
-	lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567890
