@@ -1,0 +1,677 @@
+================================================================================
+DISA ATTRITION DASHBOARD - PRODUCTION-GRADE POWER QUERY M CODE
+================================================================================
+Version: 2.0 (Scalable)
+Features: Parameters, Functions, Error Handling, Performance Optimization
+================================================================================
+
+
+================================================================================
+STEP 1: CREATE PARAMETERS FIRST
+================================================================================
+Go to: Home → Manage Parameters → New Parameter
+
+-- Parameter: SharePointSiteURL --
+Name: SharePointSiteURL
+Type: Text
+Current Value: https://dod365.sharepoint-mil.us/teams/DISA-AttritionRetentionAutomation/
+Required: Yes
+
+-- Parameter: FolderPath --
+Name: FolderPath
+Type: Text
+Current Value: /Attrition-Retention Automation/TEST/NewTest/
+Required: Yes
+
+-- Parameter: OrgMappingFileName --
+Name: OrgMappingFileName
+Type: Text
+Current Value: OrgMAPPING.xlsx
+Required: Yes
+
+-- Parameter: EmpDataFilePrefix --
+Name: EmpDataFilePrefix
+Type: Text
+Current Value: DISA Empl
+Required: Yes
+
+-- Parameter: ActionsFileKeyword --
+Name: ActionsFileKeyword
+Type: Text
+Current Value: Actions
+Required: Yes
+
+-- Parameter: RangeStart --
+Name: RangeStart
+Type: Date/Time
+Current Value: 1/1/2020 12:00:00 AM
+Required: Yes
+
+-- Parameter: RangeEnd --
+Name: RangeEnd
+Type: Date/Time
+Current Value: 12/31/2030 12:00:00 AM
+Required: Yes
+
+-- Parameter: NewHireThresholdDays --
+Name: NewHireThresholdDays
+Type: Decimal Number
+Current Value: 730
+Required: Yes
+
+
+================================================================================
+STEP 2: CREATE HELPER FUNCTIONS
+================================================================================
+
+-- Function: fnGetOrgCode --
+Purpose: Extracts first N characters from org string, handles nulls and dashes
+
+let
+    fnGetOrgCode = (inputText as nullable text, optional numChars as number) as nullable text =>
+    let
+        chars = if numChars = null then 2 else numChars,
+        cleaned = if inputText = null then null
+                  else 
+                      let
+                          trimmed = Text.Trim(inputText),
+                          afterDash = Text.AfterDelimiter(trimmed, "-"),
+                          baseText = if afterDash = "" or afterDash = null then trimmed else afterDash
+                      in
+                          baseText,
+        result = if cleaned = null then null
+                 else if Text.Length(cleaned) < chars then cleaned
+                 else Text.Start(cleaned, chars)
+    in
+        result
+in
+    fnGetOrgCode
+
+
+-- Function: fnParseSnapshotDate --
+Purpose: Parses date from filename with multiple format support
+
+let
+    fnParseSnapshotDate = (fileName as text) as nullable date =>
+    let
+        // Remove extension
+        baseName = Text.BeforeDelimiter(fileName, ".xlsx"),
+        baseName2 = Text.BeforeDelimiter(if baseName = "" then fileName else baseName, ".xls"),
+        cleanName = if baseName2 = "" then baseName else baseName2,
+        
+        // Extract date portion (after "DISA Empl Data " or similar)
+        datePartRaw = Text.Trim(
+            if Text.Contains(cleanName, "Data ") then Text.AfterDelimiter(cleanName, "Data ")
+            else if Text.Contains(cleanName, "DATA ") then Text.AfterDelimiter(cleanName, "DATA ")
+            else cleanName
+        ),
+        
+        // Try multiple parsing strategies
+        result = 
+            // Strategy 1: Standard US date format
+            try Date.FromText(datePartRaw, [Culture="en-US"]) otherwise
+            // Strategy 2: "DD Mon YY" format (e.g., "15 Jan 24")
+            try 
+                let
+                    parts = Text.Split(datePartRaw, " "),
+                    day = Number.From(parts{0}),
+                    monthText = parts{1},
+                    yearText = parts{2},
+                    month = Date.Month(Date.FromText("1 " & monthText & " 2000")),
+                    year = if Number.From(yearText) < 100 then 2000 + Number.From(yearText) else Number.From(yearText)
+                in
+                    #date(year, month, day)
+            otherwise
+            // Strategy 3: "Mon DD YY" format
+            try 
+                let
+                    parts = Text.Split(datePartRaw, " "),
+                    monthText = parts{0},
+                    day = Number.From(parts{1}),
+                    yearText = parts{2},
+                    month = Date.Month(Date.FromText("1 " & monthText & " 2000")),
+                    year = if Number.From(yearText) < 100 then 2000 + Number.From(yearText) else Number.From(yearText)
+                in
+                    #date(year, month, day)
+            otherwise
+            // Strategy 4: YYYYMMDD format
+            try 
+                let
+                    year = Number.From(Text.Start(datePartRaw, 4)),
+                    month = Number.From(Text.Middle(datePartRaw, 4, 2)),
+                    day = Number.From(Text.Middle(datePartRaw, 6, 2))
+                in
+                    #date(year, month, day)
+            otherwise null
+    in
+        result
+in
+    fnParseSnapshotDate
+
+
+-- Function: fnIsStudentIntern --
+Purpose: Determines if employee is student/intern based on title, series, PCN
+
+let
+    fnIsStudentIntern = (title as nullable text, series as nullable text, pcn as nullable text) as logical =>
+    let
+        titleLower = Text.Lower(title ?? ""),
+        seriesText = series ?? "",
+        pcnUpper = Text.Upper(pcn ?? ""),
+        
+        // Check if student/intern indicators present
+        isStudent = Text.Contains(titleLower, "student") or
+                    Text.Contains(titleLower, "intern") or
+                    Text.EndsWith(seriesText, "99"),
+        
+        // Check for exceptions (Recent Grad, Vet Transition)
+        isException = Text.Contains(pcnUpper, "RG") or Text.Contains(pcnUpper, "VT"),
+        
+        result = isStudent and not isException
+    in
+        result
+in
+    fnIsStudentIntern
+
+
+-- Function: fnClassifyNOA --
+Purpose: Returns classification info for NOA codes
+
+let
+    fnClassifyNOA = (noaCode as nullable text) as record =>
+    let
+        noa = Text.Upper(Text.Trim(noaCode ?? "")),
+        
+        isExternal = Text.StartsWith(noa, "3") or noa = "T352" or noa = "CAO",
+        isInternal = List.Contains({"501", "570", "702", "721"}, noa),
+        isNonVoluntary = List.Contains({"330", "355", "357", "385"}, noa),
+        isValidLoss = isExternal or isInternal,
+        
+        movementType = if isExternal then "External"
+                       else if isInternal then "Internal"
+                       else "Other",
+        
+        voluntaryType = if isNonVoluntary then "Non-voluntary" else "Voluntary",
+        
+        attritionType = if isNonVoluntary then "Non-voluntary"
+                        else if isValidLoss then "Voluntary"
+                        else "Not Applicable"
+    in
+        [
+            IsExternal = isExternal,
+            IsInternal = isInternal,
+            IsNonVoluntary = isNonVoluntary,
+            IsValidLoss = isValidLoss,
+            IsAttritionNOA = isExternal,
+            MovementType = movementType,
+            VoluntaryType = voluntaryType,
+            AttritionType = attritionType
+        ]
+in
+    fnClassifyNOA
+
+
+-- Function: fnGetDepartureReason --
+Purpose: Determines departure reason from LA code and NOA description
+
+let
+    fnGetDepartureReason = (laCode as nullable text, noaDesc as nullable text) as nullable text =>
+    let
+        la = Text.Upper(Text.Trim(laCode ?? "")),
+        result = if la = "ADR" then "DoD-DRP2"
+                 else if la = "RZM" then "DoD-DRP1"
+                 else if la = "AZM" then "VERA/VSIP"
+                 else noaDesc
+    in
+        result
+in
+    fnGetDepartureReason
+
+
+-- Function: fnStandardizeAgency --
+Purpose: Standardizes agency names for consistent reporting
+
+let
+    fnStandardizeAgency = (agencyName as nullable text) as nullable text =>
+    let
+        name = agencyName ?? "",
+        replacements = {
+            {"Department of the Air Force", "Air Force"},
+            {"Dpt of the Air Force", "Air Force"},
+            {"Department of the Army", "Army"},
+            {"Dpt of the Army", "Army"},
+            {"Department of the Navy", "Navy"},
+            {"Dpt of the Navy", "Navy"},
+            {"Central Intelligence Agency", "CIA"},
+            {"National Aeronautics and Space Administration", "NASA"},
+            {"Department of Homeland Security", "DHS"},
+            {"Department of Justice", "DOJ"},
+            {"Department of State", "State"},
+            {"Department of Veterans Affairs", "VA"},
+            {"Department of Defense", "DoD"},
+            {"-Voluntary", ""},
+            {"Department", "Dpt"}
+        },
+        result = List.Accumulate(
+            replacements,
+            name,
+            (state, current) => Text.Replace(state, current{0}, current{1})
+        )
+    in
+        Text.Trim(result)
+in
+    fnStandardizeAgency
+
+
+================================================================================
+STEP 3: CREATE DATA QUERIES
+================================================================================
+
+-- Query: Dim_Organization --
+Purpose: Organization lookup table with buffering for performance
+
+let
+    // Build URL from parameters
+    FullURL = Text.Combine({
+        Text.TrimEnd(SharePointSiteURL, "/"),
+        "/Shared%20Documents",
+        Text.Replace(FolderPath, "/", "%2F"),
+        OrgMappingFileName
+    }),
+    
+    // Load workbook
+    Source = try Excel.Workbook(Web.Contents(FullURL), null, true) 
+             otherwise error "Could not connect to " & FullURL,
+    
+    // Get mapping sheet (try multiple names)
+    MappingSheet = try Source{[Item="Mapping", Kind="Sheet"]}[Data]
+                   otherwise try Source{[Item="mapping", Kind="Sheet"]}[Data]
+                   otherwise try Source{[Item="Sheet1", Kind="Sheet"]}[Data]
+                   otherwise error "Could not find Mapping sheet in " & OrgMappingFileName,
+    
+    // Promote headers
+    #"Promoted Headers" = Table.PromoteHeaders(MappingSheet, [PromoteAllScalars=true]),
+    
+    // Standardize column names
+    #"Renamed Columns" = Table.RenameColumns(#"Promoted Headers", {}, MissingField.Ignore),
+    
+    // Set types
+    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {
+        {"Dcode", type text},
+        {"Center", type text},
+        {"Org", type text},
+        {"CAM ID", type text}
+    }, "en-US"),
+    
+    // Remove empty rows
+    #"Filtered Rows" = Table.SelectRows(#"Changed Type", each [Dcode] <> null and [Dcode] <> ""),
+    
+    // Add row key for relationships
+    #"Added Index" = Table.AddIndexColumn(#"Filtered Rows", "OrgKey", 1, 1, Int64.Type),
+    
+    // Buffer for performance (used in multiple joins)
+    #"Buffered" = Table.Buffer(#"Added Index")
+in
+    #"Buffered"
+
+
+-- Query: Emp Data --
+Purpose: Employee snapshots with all calculated fields
+
+let
+    // Connect to SharePoint
+    Source = SharePoint.Files(SharePointSiteURL, [ApiVersion=15]),
+    
+    // Filter to target folder
+    #"Filtered Folder" = Table.SelectRows(Source, each 
+        Text.Contains([Folder Path], FolderPath) and
+        [Attributes]?[Hidden]? <> true
+    ),
+    
+    // Filter to employee data files
+    #"Filtered Files" = Table.SelectRows(#"Filtered Folder", each 
+        Text.StartsWith([Name], EmpDataFilePrefix) and 
+        (Text.EndsWith([Name], ".xlsx") or Text.EndsWith([Name], ".xls"))
+    ),
+    
+    // Parse snapshot date from filename
+    #"Added Snapshot Date" = Table.AddColumn(#"Filtered Files", "Snapshot Date", 
+        each fnParseSnapshotDate([Name]), type date),
+    
+    // Remove files where date couldn't be parsed
+    #"Valid Dates" = Table.SelectRows(#"Added Snapshot Date", each [Snapshot Date] <> null),
+    
+    // Load file contents
+    #"Added Data" = Table.AddColumn(#"Valid Dates", "FileData", each 
+        let
+            currentDate = [Snapshot Date],
+            content = try
+                let
+                    wb = Excel.Workbook([Content], null, true),
+                    // Try Table1, then Sheet1
+                    data = try wb{[Item="Table1", Kind="Table"]}[Data]
+                           otherwise try wb{[Item="Sheet1", Kind="Sheet"]}[Data]
+                           otherwise null,
+                    // Add snapshot date to each row
+                    withDate = if data <> null then 
+                               Table.AddColumn(data, "Snapshot Date", each currentDate, type date)
+                               else null
+                in
+                    withDate
+            otherwise null
+        in
+            content
+    ),
+    
+    // Keep only successful loads
+    #"Valid Data" = Table.SelectRows(#"Added Data", each [FileData] <> null),
+    
+    // Combine all files
+    #"Combined" = Table.Combine(#"Valid Data"[FileData]),
+    
+    // Set data types
+    #"Typed" = Table.TransformColumnTypes(#"Combined", {
+        {"DoD ID (EDIPI)", type text},
+        {"Org Structure ID", type text},
+        {"Occ Series Current", type text},
+        {"Title", type text},
+        {"Manpower PCN", type text},
+        {"Dt Arrived Personnel Office", type date},
+        {"Dt of Birth", type date},
+        {"SCD Leave", type date},
+        {"SCD Civilian", type date},
+        {"SCD RIF", type date},
+        {"SALARY_HR", type number},
+        {"Basic Salary Rate", type number},
+        {"Locality Pay Rate", type number},
+        {"Total Pay Amt", type number},
+        {"Snapshot Date", type date},
+        {"NAME-FULL", type text}
+    }, "en-US"),
+    
+    // Add org lookup key
+    #"Added Org Key" = Table.AddColumn(#"Typed", "ORG First 2", 
+        each fnGetOrgCode([#"Org Structure ID"], 2), type text),
+    
+    // Join to org dimension
+    #"Joined Org" = Table.NestedJoin(#"Added Org Key", {"ORG First 2"}, 
+        Dim_Organization, {"Dcode"}, "OrgMatch", JoinKind.LeftOuter),
+    
+    // Expand org fields
+    #"Expanded Org" = Table.ExpandTableColumn(#"Joined Org", "OrgMatch", 
+        {"Center", "Org", "CAM ID", "OrgKey"}, {"Center", "Org", "CAM ID", "OrgKey"}),
+    
+    // Add student/intern flag
+    #"Added StudentIntern" = Table.AddColumn(#"Expanded Org", "IsStudentIntern",
+        each fnIsStudentIntern([Title], [#"Occ Series Current"], [#"Manpower PCN"]), type logical),
+    
+    // Add new hire flag
+    #"Added NewHire" = Table.AddColumn(#"Added StudentIntern", "Is New Hire", each
+        let
+            arrival = [Dt Arrived Personnel Office],
+            snapshot = [Snapshot Date],
+            daysDiff = if arrival <> null and snapshot <> null 
+                       then Duration.Days(snapshot - arrival) 
+                       else null
+        in
+            if daysDiff <> null then daysDiff <= NewHireThresholdDays else false,
+        type logical),
+    
+    // Add years of service
+    #"Added YOS" = Table.AddColumn(#"Added NewHire", "Years of Service", each
+        let
+            arrival = [Dt Arrived Personnel Office],
+            snapshot = [Snapshot Date]
+        in
+            if arrival <> null and snapshot <> null 
+            then Number.RoundDown(Duration.Days(snapshot - arrival) / 365.25, 1)
+            else null,
+        type number),
+    
+    // Add tenure band for analysis
+    #"Added Tenure Band" = Table.AddColumn(#"Added YOS", "Tenure Band", each
+        let yos = [Years of Service]
+        in
+            if yos = null then "Unknown"
+            else if yos < 1 then "< 1 Year"
+            else if yos < 2 then "1-2 Years"
+            else if yos < 5 then "2-5 Years"
+            else if yos < 10 then "5-10 Years"
+            else if yos < 20 then "10-20 Years"
+            else "20+ Years",
+        type text),
+    
+    // Add composite key for matching
+    #"Added Key" = Table.AddColumn(#"Added Tenure Band", "EmployeeKey", each
+        Text.Upper(Text.Combine({
+            Text.Select([#"Manpower PCN"] ?? "", {"A".."Z", "a".."z", "0".."9"}),
+            "-",
+            Text.Select([#"NAME-FULL"] ?? "", {"A".."Z", "a".."z"})
+        })), type text),
+    
+    // Add load timestamp
+    #"Added LoadDate" = Table.AddColumn(#"Added Key", "_LoadedAt", each DateTime.LocalNow(), type datetime)
+in
+    #"Added LoadDate"
+
+
+-- Query: Personnel Actions --
+Purpose: Departure and movement records with full classification
+
+let
+    // Connect to SharePoint
+    Source = SharePoint.Files(SharePointSiteURL, [ApiVersion=15]),
+    
+    // Filter to target folder
+    #"Filtered Folder" = Table.SelectRows(Source, each 
+        Text.Contains([Folder Path], FolderPath) and
+        [Attributes]?[Hidden]? <> true
+    ),
+    
+    // Filter to action files
+    #"Filtered Files" = Table.SelectRows(#"Filtered Folder", each 
+        Text.Contains([Name], ActionsFileKeyword) and 
+        (Text.EndsWith([Name], ".xlsx") or Text.EndsWith([Name], ".xls"))
+    ),
+    
+    // Load file contents
+    #"Added Data" = Table.AddColumn(#"Filtered Files", "FileData", each 
+        try Excel.Workbook([Content], null, true){[Item="Table1", Kind="Table"]}[Data]
+        otherwise try Excel.Workbook([Content], null, true){[Item="Sheet1", Kind="Sheet"]}[Data]
+        otherwise null
+    ),
+    
+    // Keep successful loads
+    #"Valid Data" = Table.SelectRows(#"Added Data", each [FileData] <> null),
+    
+    // Combine all files
+    #"Combined" = Table.Combine(#"Valid Data"[FileData]),
+    
+    // INCREMENTAL REFRESH FILTER
+    #"Date Filtered" = Table.SelectRows(#"Combined", each 
+        [EFFECTIVE_DATE_4] >= RangeStart and [EFFECTIVE_DATE_4] < RangeEnd
+    ),
+    
+    // Remove duplicates
+    #"Deduplicated" = Table.Distinct(#"Date Filtered", 
+        {"NAME_PERS_1", "FIRST_NOA_CODE_5A", "EFFECTIVE_DATE_4"}),
+    
+    // Set types
+    #"Typed" = Table.TransformColumnTypes(#"Deduplicated", {
+        {"EFFECTIVE_DATE_4", type date},
+        {"DT_ARR_SVCG_CCPO", type date},
+        {"FIRST_NOA_CODE_5A", type text},
+        {"FIRST_NOA_DESC_5B", type text},
+        {"FIRST_ACTION_LA_CODE2_5E", type text},
+        {"FROM_POSITION_ORG_LINE6_14", type text},
+        {"TO_POSITION_ORG_LINE6_22", type text},
+        {"FROM_OCC_CODE_9", type text},
+        {"TO_OCC_CODE_17", type text},
+        {"MOST_RECENT_EMPL_POSN_TITLE", type text},
+        {"MOST_RECENT_EMPL_MANPOWER_PCN", type text},
+        {"NAME_PERS_1", type text}
+    }, "en-US"),
+    
+    // Add org codes
+    #"Added From Org Code" = Table.AddColumn(#"Typed", "From ORG 2 Digit",
+        each fnGetOrgCode([FROM_POSITION_ORG_LINE6_14], 2), type text),
+    
+    #"Added To Org Code" = Table.AddColumn(#"Added From Org Code", "To ORG 2 Digit",
+        each fnGetOrgCode([TO_POSITION_ORG_LINE6_22], 2), type text),
+    
+    // Join From Org
+    #"Joined From" = Table.NestedJoin(#"Added To Org Code", {"From ORG 2 Digit"},
+        Dim_Organization, {"Dcode"}, "FromMatch", JoinKind.LeftOuter),
+    #"Expanded From" = Table.ExpandTableColumn(#"Joined From", "FromMatch",
+        {"Org", "Center", "CAM ID"}, {"From Org", "From Center", "From CAM"}),
+    
+    // Join To Org
+    #"Joined To" = Table.NestedJoin(#"Expanded From", {"To ORG 2 Digit"},
+        Dim_Organization, {"Dcode"}, "ToMatch", JoinKind.LeftOuter),
+    #"Expanded To" = Table.ExpandTableColumn(#"Joined To", "ToMatch",
+        {"Org", "Center"}, {"To Org", "To Center"}),
+    
+    // Add NOA classification (using function)
+    #"Added NOA Class" = Table.AddColumn(#"Expanded To", "NOA_Classification",
+        each fnClassifyNOA([FIRST_NOA_CODE_5A]), type record),
+    
+    // Expand classification fields
+    #"Expanded NOA" = Table.ExpandRecordColumn(#"Added NOA Class", "NOA_Classification",
+        {"IsExternal", "IsInternal", "IsNonVoluntary", "IsValidLoss", "IsAttritionNOA", 
+         "MovementType", "VoluntaryType", "AttritionType"},
+        {"Is External", "Is Internal", "Is Non-Voluntary", "Is Valid Loss", "Is Attrition NOA",
+         "Internal External Movement", "Voluntary Type", "Attrition Type"}),
+    
+    // Add student/intern flag
+    #"Added StudentIntern" = Table.AddColumn(#"Expanded NOA", "IsStudentIntern",
+        each fnIsStudentIntern([MOST_RECENT_EMPL_POSN_TITLE], [FROM_OCC_CODE_9], [MOST_RECENT_EMPL_MANPOWER_PCN]),
+        type logical),
+    
+    // Add new hire flag
+    #"Added NewHire" = Table.AddColumn(#"Added StudentIntern", "Is New Hire", each
+        if [DT_ARR_SVCG_CCPO] <> null and [EFFECTIVE_DATE_4] <> null
+        then Duration.Days([EFFECTIVE_DATE_4] - [DT_ARR_SVCG_CCPO]) <= NewHireThresholdDays
+        else false,
+        type logical),
+    
+    // Add years of service at departure
+    #"Added YOS" = Table.AddColumn(#"Added NewHire", "Years of Service", each
+        if [DT_ARR_SVCG_CCPO] <> null and [EFFECTIVE_DATE_4] <> null
+        then Number.RoundDown(Duration.Days([EFFECTIVE_DATE_4] - [DT_ARR_SVCG_CCPO]) / 365.25, 1)
+        else null,
+        type number),
+    
+    // Add compare org (did they change orgs?)
+    #"Added Compare Org" = Table.AddColumn(#"Added YOS", "Compare From and To Org", each
+        if [Is Attrition NOA] then false
+        else if [From Org] = null or [To Org] = null then false
+        else [From Org] = [To Org],
+        type logical),
+    
+    // Add compare series
+    #"Added Compare Series" = Table.AddColumn(#"Added Compare Org", "Compare Job Series", each
+        if [Is Attrition NOA] then false
+        else if [FROM_OCC_CODE_9] = null or [TO_OCC_CODE_17] = null then false
+        else [FROM_OCC_CODE_9] = [TO_OCC_CODE_17],
+        type logical),
+    
+    // Add departure reason
+    #"Added Departure Reason" = Table.AddColumn(#"Added Compare Series", "Departure Reason",
+        each fnGetDepartureReason([FIRST_ACTION_LA_CODE2_5E], [FIRST_NOA_DESC_5B]), type text),
+    
+    // Add destination agency
+    #"Added Destination Raw" = Table.AddColumn(#"Added Departure Reason", "Destination Agency Raw", each
+        let reason = [Departure Reason] ?? ""
+        in
+            if Text.Contains(reason, "Termination-Appt In ") then Text.AfterDelimiter(reason, "Termination-Appt In ")
+            else if Text.Contains(reason, "Termination-Appointment In ") then Text.AfterDelimiter(reason, "Termination-Appointment In ")
+            else [FIRST_NOA_CODE_5A] & "-" & ([FIRST_NOA_DESC_5B] ?? ""),
+        type text),
+    
+    #"Added Destination" = Table.AddColumn(#"Added Destination Raw", "Destination Agency",
+        each fnStandardizeAgency([Destination Agency Raw]), type text),
+    
+    // Add tenure band
+    #"Added Tenure Band" = Table.AddColumn(#"Added Destination", "Tenure Band", each
+        let yos = [Years of Service]
+        in
+            if yos = null then "Unknown"
+            else if yos < 1 then "< 1 Year"
+            else if yos < 2 then "1-2 Years"
+            else if yos < 5 then "2-5 Years"
+            else if yos < 10 then "5-10 Years"
+            else if yos < 20 then "10-20 Years"
+            else "20+ Years",
+        type text),
+    
+    // Add employee key for matching
+    #"Added Key" = Table.AddColumn(#"Added Tenure Band", "EmployeeKey", each
+        Text.Upper(Text.Combine({
+            Text.Select([MOST_RECENT_EMPL_MANPOWER_PCN] ?? "", {"A".."Z", "a".."z", "0".."9"}),
+            "-",
+            Text.Select([NAME_PERS_1] ?? "", {"A".."Z", "a".."z"})
+        })), type text),
+    
+    // Remove temp columns
+    #"Removed Temp" = Table.RemoveColumns(#"Added Key", {"Destination Agency Raw"}, MissingField.Ignore),
+    
+    // Add load timestamp
+    #"Added LoadDate" = Table.AddColumn(#"Removed Temp", "_LoadedAt", each DateTime.LocalNow(), type datetime)
+in
+    #"Added LoadDate"
+
+
+-- Query: Date Dimension --
+Purpose: Date table for time intelligence (auto-generated)
+
+let
+    // Get date range from data
+    MinDate = List.Min(#"Personnel Actions"[EFFECTIVE_DATE_4]),
+    MaxDate = List.Max(#"Personnel Actions"[EFFECTIVE_DATE_4]),
+    
+    // Extend range
+    StartDate = Date.StartOfYear(Date.AddYears(MinDate, -1)),
+    EndDate = Date.EndOfYear(Date.AddYears(MaxDate, 1)),
+    
+    // Generate date list
+    DateCount = Duration.Days(EndDate - StartDate) + 1,
+    DateList = List.Dates(StartDate, DateCount, #duration(1, 0, 0, 0)),
+    
+    // Convert to table
+    #"Converted to Table" = Table.FromList(DateList, Splitter.SplitByNothing(), {"Date"}, null, ExtraValues.Error),
+    #"Changed Type" = Table.TransformColumnTypes(#"Converted to Table", {{"Date", type date}}),
+    
+    // Add date attributes
+    #"Added Year" = Table.AddColumn(#"Changed Type", "Year", each Date.Year([Date]), Int64.Type),
+    #"Added Quarter" = Table.AddColumn(#"Added Year", "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text),
+    #"Added Month Num" = Table.AddColumn(#"Added Quarter", "Month Number", each Date.Month([Date]), Int64.Type),
+    #"Added Month" = Table.AddColumn(#"Added Month Num", "Month", each Date.MonthName([Date]), type text),
+    #"Added Month Short" = Table.AddColumn(#"Added Month", "Month Short", each Text.Start(Date.MonthName([Date]), 3), type text),
+    #"Added Year-Month" = Table.AddColumn(#"Added Month Short", "Year-Month", each Text.From([Year]) & "-" & Text.PadStart(Text.From([Month Number]), 2, "0"), type text),
+    #"Added Fiscal Year" = Table.AddColumn(#"Added Year-Month", "Fiscal Year", each if [Month Number] >= 10 then [Year] + 1 else [Year], Int64.Type),
+    #"Added Fiscal Quarter" = Table.AddColumn(#"Added Fiscal Year", "Fiscal Quarter", each 
+        let m = [Month Number]
+        in if m >= 10 then "FQ1" else if m >= 7 then "FQ4" else if m >= 4 then "FQ3" else "FQ2", type text),
+    
+    // Buffer for performance
+    #"Buffered" = Table.Buffer(#"Added Fiscal Quarter")
+in
+    #"Buffered"
+
+
+================================================================================
+QUERY LOAD ORDER (Important!)
+================================================================================
+
+Load in this exact order to avoid dependency errors:
+
+1. Create all Parameters
+2. Create all Functions (fn*)
+3. Dim_Organization
+4. Emp Data
+5. Personnel Actions
+6. Date Dimension
+
+================================================================================
+END OF M CODE FILE
+================================================================================
