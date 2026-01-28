@@ -1,0 +1,51 @@
+{
+    "name": "DISA Navy",
+    "dataColors": [
+        "#F4B942",
+        "#3B82F6",
+        "#10B981",
+        "#EF4444",
+        "#8B5CF6",
+        "#F97316",
+        "#06B6D4",
+        "#EC4899",
+        "#84CC16",
+        "#6366F1"
+    ],
+    "good": "#10B981",
+    "neutral": "#F4B942",
+    "bad": "#EF4444",
+    "maximum": "#10B981",
+    "center": "#F4B942",
+    "minimum": "#EF4444",
+    "null": "#64748B",
+    "firstLevelElements": "#F8FAFC",
+    "secondLevelElements": "#94A3B8",
+    "thirdLevelElements": "#1E3A5F",
+    "fourthLevelElements": "#64748B",
+    "background": "#0F172A",
+    "secondaryBackground": "#1E293B",
+    "tableAccent": "#F4B942",
+    "textClasses": {
+        "callout": {
+            "fontSize": 32,
+            "fontFace": "Segoe UI Semibold",
+            "color": "#F8FAFC"
+        },
+        "title": {
+            "fontSize": 12,
+            "fontFace": "Segoe UI Semibold",
+            "color": "#F8FAFC"
+        },
+        "header": {
+            "fontSize": 12,
+            "fontFace": "Segoe UI Semibold",
+            "color": "#F8FAFC"
+        },
+        "label": {
+            "fontSize": 10,
+            "fontFace": "Segoe UI",
+            "color": "#94A3B8"
+        }
+    }
+}
